@@ -7,14 +7,15 @@
     jasmineEnv.specFilter = function (spec) {
         return htmlReporter.specFilter(spec);
     };
-    var currentWindowOnload = window.onload;
-    console.log('onload saved');
+   var currentWindowOnload = window.onload;
+  window.onload = function() {
+    if (currentWindowOnload) {
+      currentWindowOnload();
+    }
 
     document.querySelector('.version').innerHTML = jasmineEnv.versionString();
-    console.log('version run');
     execJasmine();
-
-
+  };
     function execJasmine() {
         console.log("running jasmine");
         jasmineEnv.execute();
