@@ -1,3 +1,4 @@
+$(function(){
 $('div.content:first').append($('<div class="age">').text('Loaded.').delay('400').fadeOut('slow', function () {
     $(this).text(new Date()).fadeIn('fast');
 }));
@@ -104,4 +105,5 @@ $.each(cssEvents,function(i,e){
     $(document).on(e.event,e.s,function(){
         $(this).css(e.css,e.v);
     });
+});
 });
