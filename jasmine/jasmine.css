@@ -1,0 +1,19 @@
+.suite {
+    border: 1px solid black;
+}
+.suite.passed {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+.suite.failed {
+    color: #D8000C;
+    background-color: #FFBABA;
+}
+.messages {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+.specDetail.failed {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}
