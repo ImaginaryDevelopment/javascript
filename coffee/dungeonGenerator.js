@@ -148,7 +148,7 @@ Dungeon.prototype.makeCorridor = function(x, y, length, direction) {
 };
 
 Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
-  var buildWall, dir, eastwall, floor, insideEast, insideeastwall, insidenorthwall, northwall, southwall, wall, westwall, xlen, xtemp, ylen, ytemp;
+  var buildWall, dir, eastwall, floor, insideEast, insideeastwall, insidenorthwall, northwall, southwall, wall, westwall, xlen, xtemp, ylen, ytemp, _ref;
   xlen = Math.randInt(4, xlength);
   ylen = Math.randInt(4, ylength);
   floor = getTile("dirtFloor");
@@ -226,7 +226,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       }
       xtemp = westwall;
       while (xtemp < eastwall) {
-        if (xtemp < 0 || xtemp > this.xsize || this.getCellType(xtemp, ytemp).name !== "unused") {
+        if (xtemp < 0 || xtemp > this.xsize || ((_ref = this.getCellType(xtemp, ytemp)) != null ? _ref.name : void 0) !== "unused") {
           return false;
         }
         xtemp++;

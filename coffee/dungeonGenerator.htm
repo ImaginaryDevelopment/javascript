@@ -1,0 +1,35 @@
+<html>
+<body>
+	<a href="https://github.com/ImaginaryDevelopment/javascript/raw/master/coffee/dungeonGenerator.js">Dungeon Generator.js</a>
+which is based on 
+<a href="http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dungeon-Building_Algorithm"> Bsp Dungeon Building</a>
+<table><tbody data-bind="foreach: rows">
+<tr data-bind="foreach: $data">
+	<td data-bind="text:src">test</td>
+</tr>
+</tbody>
+</table>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js"></script>
+<script src="file:///D:/Projects/javascript/coffee/dungeonGenerator.js"></script>
+
+<script>
+var dungeonModel=function(x,y,objects){
+	var self=this;
+	var d=new Dungeon();
+	d.createDungeon(x,y,objects);
+	self.x=x;
+	self.y=y;
+	self.rows=ko.observableArray();
+	for(var j=0;j<y;j++){
+		self.rows.push(ko.observableArray([]));
+		for(var i=0;i<x;i++){
+			self.rows()[j].push(d.getCellType(i,j));
+		}
+	}
+
+}
+ko.applyBindings(new dungeonModel(20,20,10));
+</script>
+</body>
+
+</html>

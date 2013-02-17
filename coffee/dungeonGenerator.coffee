@@ -171,7 +171,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       return false if ytemp <0 || ytemp > @ysize
       xtemp= westwall
       while xtemp< eastwall
-        return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp).name!="unused"
+        return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp)?.name!="unused"
         xtemp++
       ytemp++
       ytemp=y
