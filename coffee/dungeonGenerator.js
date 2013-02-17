@@ -21,7 +21,7 @@ Tile.prototype.isDirtfloorOrCorridor = function() {
   return this.name === "dirtFloor" || this.name === "corridor";
 };
 
-Tiles = [new Tile("unused", " ", "black"), new Tile("dirtWall", "+", "brown"), new Tile("dirtFloor", "_", "brown"), new Tile("stoneWall", "+", "grey"), new Tile("corridor", "c", "brown"), new Tile("door", "D", "brown"), new Tile("upStairs", "u", "yellow"), new Tile("downStairs", "d", "yellow")];
+Tiles = [new Tile("unused", "_", "black"), new Tile("dirtWall", "+", "brown"), new Tile("dirtFloor", ".", "brown"), new Tile("stoneWall", "O", "grey"), new Tile("corridor", "#", "brown"), new Tile("door", "D", "brown"), new Tile("upStairs", "<", "yellow"), new Tile("downStairs", ">", "yellow")];
 
 getTile = function(name) {
   var matches;

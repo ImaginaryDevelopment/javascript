@@ -6,14 +6,14 @@ class Tile
 Tile::isDirtfloorOrCorridor =() -> 
   this.name =="dirtFloor" || this.name=="corridor"
 
-Tiles = [new Tile("unused"," ","black"),
+Tiles = [new Tile("unused","_","black"),
      new Tile("dirtWall","+","brown"),
-     new Tile("dirtFloor","_","brown"),
-     new Tile("stoneWall","+","grey"),
-     new Tile("corridor","c","brown"),
+     new Tile("dirtFloor",".","brown"),
+     new Tile("stoneWall","O","grey"),
+     new Tile("corridor","#","brown"),
      new Tile("door","D","brown")
-     new Tile("upStairs","u","yellow"),
-     new Tile("downStairs","d","yellow"),
+     new Tile("upStairs","<","yellow"),
+     new Tile("downStairs",">","yellow"),
      
       
   ]
@@ -199,6 +199,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
   true
 
+#be warned the array is flat not [,]
 Dungeon::getDungeon = () -> @dungeonMap.slice 0
 
 Dungeon::showDungeon = () ->
