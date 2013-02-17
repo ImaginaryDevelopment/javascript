@@ -162,7 +162,7 @@
         xtemp = x - xlen / 2;
         while (xtemp < x + (xlen + 1) / 2) {
           buildWall = xtemp === x - xlen / 2 || xtemp === x + (xlen - 1) / 2 || ytemp === y || ytemp === y - ylen + 1;
-          setCell(xtemp, ytemp, buildWall ? wall : floor);
+          this.setCell(xtemp, ytemp(buildWall ? wall : floor));
           xtemp++;
         }
         ytemp--;
@@ -195,8 +195,58 @@
       }
     }
     if (dir === 2) {
-      return ytemp = y;
+      ytemp = y;
+      while (ytemp < y + ylen) {
+        if (ytemp < 0 || ytemp > this.ysize) {
+          return false;
+        }
+        xtemp = x - xlen / 2;
+        while (xtemp < x + (xlen + 1) / 2) {
+          if (xtemp < 0 || xtemp > this.xsize || this.getCellType(xtemp, ytemp).name !== "unused") {
+            return false;
+          }
+          xtemp++;
+        }
+        ytemp++;
+        ytemp = y;
+        while (ytemp < y + ylen) {
+          xtemp = x - xlen / 2;
+          while (xtemp < x + (xlen + 1) / 2) {
+            buildWall = xtemp === x - xlen / 2 || xtemp === x + (xlen - 1) / 2 || ytemp === y || ytemp === y + ylen - 1;
+            this.setCell(xtemp, ytemp(buildWall ? wall : floor));
+            xtemp++;
+          }
+          ytemp++;
+        }
+      }
     }
+    if (dir === 3) {
+      ytemp = y - ylen / 2;
+      while (ytemp < y + (ylen + 1) / 2) {
+        if (ytemp < 0 || ytemp > this.ysize) {
+          return false;
+        }
+        xtemp = x;
+        while (xtemp > x - xlen) {
+          if (xtemp < 0 || xtemp > this.xsize || this.getCellType(xtemp, ytemp) !== "unused") {
+            return false;
+          }
+          xtemp--;
+        }
+        ytemp++;
+      }
+      ytemp = y - ylen / 2;
+      while (ytemp < y + (ylen + 1) / 2) {
+        xtemp = x;
+        while (xtemp > x - xlen) {
+          buildWall = xtemp === x || xtemp === x - xlen + 1 || ytemp === y - ylen / 2 || (ytemp = y + (ylen - 1) / 2);
+          this.setCell(xtemp, ytemp(buildWall ? wall : floor));
+          xtemp--;
+        }
+        ytemp++;
+      }
+    }
+    return true;
   };
 
 }).call(this);
