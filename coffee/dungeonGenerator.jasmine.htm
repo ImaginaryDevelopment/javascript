@@ -1,0 +1,76 @@
+<html>
+    
+    <body>
+    	<a href="https://github.com/pivotal/jasmine/wiki/Matchers">Jasmine Matches</a>
+<script src="dungeonGenerator.js"></script>
+<script src="https://github.com/searls/jasmine-all/raw/master/jasmine-all-min.js"></script>
+    	<script>
+    	var x=80;
+var y=25;
+var dungeon = new Dungeon();
+    dungeon.createDungeon(x, y, 50);
+    dungeon.showDungeon();
+describe('Tile',function(){
+    it('has a isDirtfloorOrCorridor method',function(){
+        expect(new Tile().isDirtfloorOrCorridor).toBeDefined();
+    });
+    
+});
+describe('getTile(n)',function(){
+    it('can find unused',function(){
+        var actual=getTile('unused');
+        expect(actual).toBeDefined();
+        expect(actual.name).toBe("unused");
+        
+    });
+});
+describe('All tiles', function () {  
+    it('have a name', function () {  
+        for(var i=0;i<Tiles.length;i++)
+            expect(Tiles[i].name).toBeDefined();
+    });  
+});  
+describe('Dungeon',function(){
+    describe('initialize',function(){
+        var actual=new Dungeon();
+        actual.initialize(x,y);
+        it('is size x,y',function(){
+            expect(actual.getDungeon().length).toBe(x*y);
+        });
+        it('has stone south and north walls',function(){
+            for(var i=0;i<x;i++)
+            {
+                expect(actual.getCellType(i,0).name).toBe('stoneWall');
+                expect(actual.getCellType(i,y-1).name).toBe('stoneWall');
+            }
+        });
+        it('has stone west and east walls',function(){
+            for(var i=0;i<y;i++){
+                expect(actual.getCellType(0,i).name).toBe('stoneWall');
+                expect(actual.getCellType(x-1,i).name).toBe('stoneWall');
+            }
+        });
+    });
+    it('setsCells',function(){
+        var actual=new Dungeon();
+        expect(actual).toBeDefined();
+        actual.initialize(x,y);
+        
+        expect(actual.getCellType(1,1).name).toBe("unused");
+        actual.setCell(1,1,getTile("dirtFloor"));
+        expect(actual.getCellType(1,1).name).toBe("dirtFloor");
+    });
+    it('can create the initial room',function(){
+        var d=new Dungeon();
+        d.initialize(x,y);
+        xcenter= Math.round (x/2);
+        ycenter= Math.round (y/2);
+        var actual=d.makeRoom(xcenter,ycenter,8,6,Math.randInt(0,3));
+        expect(actual).toBe(true);
+        
+    });
+});
+
+    	</script>
+    </body>
+ </html>

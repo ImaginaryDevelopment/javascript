@@ -45,21 +45,28 @@ Dungeon = () ->
 
 Dungeon::setCell= (x,y,cellType) ->
   @dungeonMap[x+@xsize*y]=cellType
+
 Dungeon::getCellType= (x,y) -> @dungeonMap[x+@xsize*y]
 
+Dungeon::inBounds= (x,y) -> 
+  x>=0 && x<@xsize && y>=0 && y>=@ysize
+
+Dungeon::isUnused= (x,y) ->
+  @inBounds(x,y) && @getCellType(x,y).name =="unused"
+
 Dungeon::makeCorridor = (x,y,length,direction) ->
-  len=Math.randInt(2,length)
-  floor=getTile("corridor")
+  len= Math.randInt(2,length)
+  floor= getTile("corridor")
   dir=0
-  if direction > 0 && direction < 4 then dir=direction
-  xtemp=0
-  ytemp=0
+  if direction > 0 && direction < 4 then dir= direction
+  xtemp= 0
+  ytemp= 0
   if dir is 0 #north
     return false  if x < 0 or x > @xsize
-    xtemp=x
-    ytemp=y
+    xtemp= x
+    ytemp= y
     while ytemp > (y - len)
-      return false if ytemp < 0 || ytemp > @ysize || @getCellType(xtemp, ytemp).name != "unused"
+      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
       ytemp--
     #if we're still here, let's start building
     ytemp = y
@@ -68,11 +75,11 @@ Dungeon::makeCorridor = (x,y,length,direction) ->
       ytemp--
     
   if (dir== 1) #east
-    return false if (y<0 || y>@ysize)
+    return false if (y<0 || y>=@ysize)
     ytemp=y
     xtemp=x
     while xtemp < (x+len)
-      return false if xtemp < 0 || xtemp > @xsize || @getCellType(xtemp,ytemp).name != "unused" 
+      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
       xtemp++
     xtemp=x
     while xtemp < (x+len)
@@ -84,7 +91,7 @@ Dungeon::makeCorridor = (x,y,length,direction) ->
     xtemp=x
     ytemp=y
     while ytemp< (y+len)
-      return false if ytemp<0 || ytemp > @ysize || @getCellType(xtemp,ytemp).name != "unused"
+      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
       ytemp++
     ytemp=y
     while ytemp < (y+len)
@@ -95,7 +102,7 @@ Dungeon::makeCorridor = (x,y,length,direction) ->
     ytemp=y
     xtemp=x
     while xtemp > x-len
-      return false if xtemp < 0 || xtemp>@xsize || @getCellType(xtemp,ytemp).name != "unused"
+      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
       xtemp--
     xtemp=x
     while xtemp > x-len
@@ -121,7 +128,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       return false if ytemp <0 || ytemp > @ysize
       xtemp = westwall
       while xtemp < eastwall
-        return false if xtemp<0 || xtemp>@xsize || @getCellType(xtemp,ytemp).name != "unused"
+        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
         xtemp++
       ytemp--
     #we're here build
@@ -149,7 +156,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       return false if ytemp<0 || ytemp> @ysize
       xtemp= x
       while xtemp < x+xlen
-        return false if xtemp<0 or xtemp>@xsize or @getCellType(xtemp,ytemp).name !="unused"
+        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
         xtemp++
       ytemp++
     #we're here build
@@ -168,10 +175,10 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
     insideeastwall = Math.round x+(xlen-1)/2
 
     while ytemp < y+ylen
-      return false if ytemp <0 || ytemp > @ysize
+      return false if ytemp <0 || ytemp >= @ysize
       xtemp= westwall
       while xtemp< eastwall
-        return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp)?.name!="unused"
+        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
         xtemp++
       ytemp++
       ytemp=y
@@ -189,10 +196,10 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
 
     ytemp= southwall
     while ytemp < northwall
-      return false if ytemp <0 || ytemp > @ysize
+      return false if ytemp <0 || ytemp >= @ysize
       xtemp=x 
       while xtemp > x-xlen
-        return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp) != "unused"
+        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
         xtemp--
       ytemp++
     ytemp= southwall
