@@ -193,6 +193,8 @@ Dungeon::showDungeon = () ->
     y++
 
 Dungeon::initialize = (x,y) ->
+  @xsize=x
+  @ysize=y
   console.log(@msgXSize+@xsize)
   console.log(@msgYSize+@ysize)
   

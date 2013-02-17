@@ -279,6 +279,8 @@ Dungeon.prototype.showDungeon = function() {
 
 Dungeon.prototype.initialize = function(x, y) {
   var buildWall;
+  this.xsize = x;
+  this.ysize = y;
   console.log(this.msgXSize + this.xsize);
   console.log(this.msgYSize + this.ysize);
   this.dungeonMap = [];
