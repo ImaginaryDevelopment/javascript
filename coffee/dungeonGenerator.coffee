@@ -275,27 +275,31 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
       cellType= @getCellType newx,newy
       if cellType.name=="dirtWall" || cellType.name =="corridor"
         #check if we can reach the place
-        if @getCellType(newx, newy+1) && @getCellType(newx, newy+1).isDirtfloorOrCorridor() 
+        cell1= @getCellType(newx,newy+1)
+        cell2= @getCellType(newx-1,newy)
+        cell3= @getCellType(newx,newy-1)
+        cell4= @getCellType(newx+1,newy)
+        if cell1 && cell1.isDirtfloorOrCorridor() 
           validTile = 0;
           xmod = 0
           ymod = -1
-        else if @getCellType(newx-1, newy) && @getCellType(newx-1,newy).isDirtfloorOrCorridor() 
+        else if cell2 && cell2.isDirtfloorOrCorridor() 
           validTile = 1
           xmod = +1
           ymod = 0
-        else if @getCellType(newx, newy-1) && @getCellType(newx,newy-1).isDirtfloorOrCorridor() 
+        else if cell3 && cell3.isDirtfloorOrCorridor() 
           validTile = 2
           xmod = 0
           ymod = +1
-        else if @getCellType(newx+1, newy) && @getCellType(newx+1,newy).isDirtfloorOrCorridor() 
+        else if cell4 && cell4.isDirtfloorOrCorridor()  
           validTile = 3
           xmod = -1
           ymod = 0
         if validTile > (-1) 
-          if @getCellType(newx, newy+1).name == "door" ||
-           @getCellType(newx-1,newy).name =="door" ||
-           @getCellType(newx,newy-1).name =="door" ||
-           @getCellType(newx+1,newy).name =="door"
+          if (cell1 && cell1.name == "door") ||
+           (cell2 && cell2.name == "door") ||
+           (cell3 && cell3.name == "door") ||
+           (cell4 && cell4.name == "door")
             console.log('invalidating tile for door')
             validTile= -1
         break if validTile >= 0

@@ -318,7 +318,7 @@ Dungeon.prototype.initialize = function(x, y) {
 };
 
 Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
-  var cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, xcenter, xmod, ycenter, ymod;
+  var cell1, cell2, cell3, cell4, cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, xcenter, xmod, ycenter, ymod;
   this.objects = inobj < 1 ? 10 : inobj;
   if (inx < 3) {
     this.xsize = 3;
@@ -357,25 +357,29 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
       validTile = -1;
       cellType = this.getCellType(newx, newy);
       if (cellType.name === "dirtWall" || cellType.name === "corridor") {
-        if (this.getCellType(newx, newy + 1) && this.getCellType(newx, newy + 1).isDirtfloorOrCorridor()) {
+        cell1 = this.getCellType(newx, newy + 1);
+        cell2 = this.getCellType(newx - 1, newy);
+        cell3 = this.getCellType(newx, newy - 1);
+        cell4 = this.getCellType(newx + 1, newy);
+        if (cell1 && cell1.isDirtfloorOrCorridor()) {
           validTile = 0;
           xmod = 0;
           ymod = -1;
-        } else if (this.getCellType(newx - 1, newy) && this.getCellType(newx - 1, newy).isDirtfloorOrCorridor()) {
+        } else if (cell2 && cell2.isDirtfloorOrCorridor()) {
           validTile = 1;
           xmod = +1;
           ymod = 0;
-        } else if (this.getCellType(newx, newy - 1) && this.getCellType(newx, newy - 1).isDirtfloorOrCorridor()) {
+        } else if (cell3 && cell3.isDirtfloorOrCorridor()) {
           validTile = 2;
           xmod = 0;
           ymod = +1;
-        } else if (this.getCellType(newx + 1, newy) && this.getCellType(newx + 1, newy).isDirtfloorOrCorridor()) {
+        } else if (cell4 && cell4.isDirtfloorOrCorridor()) {
           validTile = 3;
           xmod = -1;
           ymod = 0;
         }
         if (validTile > (-1)) {
-          if (this.getCellType(newx, newy + 1).name === "door" || this.getCellType(newx - 1, newy).name === "door" || this.getCellType(newx, newy - 1).name === "door" || this.getCellType(newx + 1, newy).name === "door") {
+          if ((cell1 && cell1.name === "door") || (cell2 && cell2.name === "door") || (cell3 && cell3.name === "door") || (cell4 && cell4.name === "door")) {
             console.log('invalidating tile for door');
             validTile = -1;
           }
