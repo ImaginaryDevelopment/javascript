@@ -306,7 +306,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
           @setCell newx+xmod, newy + ymod, getTile("dirtFloor")
       else if feature >= @chanceRoom
         console.log('making a corridor!')
-        if makeCorridor newx+xmod, newy+ymod, 6, validTile
+        if @makeCorridor newx+xmod, newy+ymod, 6, validTile
           console.log('made a corridor!')
           currentFeatures++
           @setCell newx,newy,getTile("door")

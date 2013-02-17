@@ -390,7 +390,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         }
       } else if (feature >= this.chanceRoom) {
         console.log('making a corridor!');
-        if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
+        if (this.makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
           console.log('made a corridor!');
           currentFeatures++;
           this.setCell(newx, newy, getTile("door"));
