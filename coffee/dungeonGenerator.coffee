@@ -130,10 +130,12 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp--
   if dir == 1 #east
-    northwall= Math.round y-ylen/2
-    southwall= Math.round y+(ylen+1)/2
+    southwall= Math.round y-ylen/2
+    northwall= Math.round y+(ylen+1)/2
+    insidenorthwall = Math.round y+ (ylen-1)/2
 
-    ytemp= northwall
+    ytemp= southwall
+
 
     while ytemp < y+ (ylen+1)/2
       return false if ytemp<0 || ytemp> @ysize
@@ -147,41 +149,49 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
     while ytemp< y+(ylen+1)/2
       xtemp= x
       while xtemp< x+xlen
-        buildWall = xtemp == x || xtemp == x+ xlen-1 || ytemp == y-ylen/2 || ytemp == y+(ylen-1)/2
+        buildWall = xtemp == x || xtemp == x+ xlen-1 || ytemp == southwall || ytemp == insidenorthwall
         @setCell xtemp,ytemp, if buildWall then wall else floor  
         xtemp++
       ytemp++
   if dir == 2 #south
     ytemp= y
+    westwall= Math.round x-xlen/2
+    eastwall= Math.round x+(xlen+1)/2
+    insideeastwall = Math.round x+(xlen-1)/2
+
     while ytemp < y+ylen
       return false if ytemp <0 || ytemp > @ysize
-      xtemp= x-xlen/2
-      while xtemp< x+(xlen+1)/2
+      xtemp= westwall
+      while xtemp< eastwall
         return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp).name!="unused"
         xtemp++
       ytemp++
       ytemp=y
       while ytemp< y+ylen
         xtemp= x-xlen/2
-        while xtemp < x+(xlen+1)/2
-          buildWall = xtemp == x-xlen/2 || xtemp == x+(xlen-1)/2 || ytemp==y || ytemp == y+ylen-1
+        while xtemp < eastwall
+          buildWall = xtemp == westwall || xtemp == insideeastwall || ytemp==y || ytemp == y+ylen-1
           @setCell xtemp,ytemp, if buildWall then wall else floor
           xtemp++
         ytemp++
   if dir ==3 #west
-    ytemp= y-ylen/2
-    while ytemp < y+ (ylen+1)/2
+    southwall= Math.round y-ylen/2
+    northwall= Math.round y+(ylen+1)/2
+    insidenorthwall= Math.round y+(ylen-1)/2
+
+    ytemp= southwall
+    while ytemp < northwall
       return false if ytemp <0 || ytemp > @ysize
       xtemp=x 
       while xtemp > x-xlen
         return false if xtemp<0 || xtemp > @xsize || @getCellType(xtemp,ytemp) != "unused"
         xtemp--
       ytemp++
-    ytemp= y- ylen/2
-    while ytemp < y+ (ylen+1)/2
+    ytemp= southwall
+    while ytemp < northwall
       xtemp=x 
       while xtemp > x-xlen
-        buildWall= xtemp == x || xtemp == x-xlen+1 || ytemp == y-ylen/2 || ytemp = y+ (ylen-1)/2
+        buildWall= xtemp == x || xtemp == x-xlen+1 || ytemp ==southwall || ytemp = insidenorthwall
         @setCell xtemp,ytemp, if buildWall then wall else floor
         xtemp--
       ytemp++
