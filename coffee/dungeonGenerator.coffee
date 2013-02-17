@@ -296,16 +296,14 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
             validTile= -1
         break if validTile >= 0
     if validTile > -1
-      console.log('valid!:'+validTile)
       feature= Math.randInt 0,100
       if feature <= @chanceRoom #a new room
-        console.log('making a room!')
         if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
           console.log('made a room!')
           currentFeatures++
           @setCell newx,newy, getTile("door")
           #clean up in front of the door so we can reach it
-          @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
+          @setCell newx+xmod, newy + ymod, getTile("dirtFloor")
       else if feature >= @chanceRoom
         console.log('making a corridor!')
         if makeCorridor newx+xmod, newy+ymod, 6, validTile

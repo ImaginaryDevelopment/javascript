@@ -380,15 +380,13 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
       }
     }
     if (validTile > -1) {
-      console.log('valid!:' + validTile);
       feature = Math.randInt(0, 100);
       if (feature <= this.chanceRoom) {
-        console.log('making a room!');
         if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
           console.log('made a room!');
           currentFeatures++;
           this.setCell(newx, newy, getTile("door"));
-          this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
+          this.setCell(newx + xmod, newy + ymod, getTile("dirtFloor"));
         }
       } else if (feature >= this.chanceRoom) {
         console.log('making a corridor!');
