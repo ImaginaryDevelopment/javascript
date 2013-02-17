@@ -1,3 +1,7 @@
+###
+based on 
+http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dungeon-Building_Algorithm
+###
 Math.randInt = (min,max) ->
   Math.floor(Math.random() * (max - min + 1)) + min
   
