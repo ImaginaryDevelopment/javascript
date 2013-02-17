@@ -226,7 +226,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       ytemp++;
       ytemp = y;
       while (ytemp < y + ylen) {
-        xtemp = x - xlen / 2;
+        xtemp = westwall;
         while (xtemp < eastwall) {
           buildWall = xtemp === westwall || xtemp === insideeastwall || ytemp === y || ytemp === y + ylen - 1;
           this.setCell(xtemp, ytemp, buildWall ? wall : floor);

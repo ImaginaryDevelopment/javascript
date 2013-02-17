@@ -40,6 +40,7 @@ Dungeon = () ->
 Dungeon::setCell= (x,y,cellType) ->
   @dungeonMap[x+@xsize*y]=cellType
 Dungeon::getCellType= (x,y) -> @dungeonMap[x+@xsize*y]
+
 Dungeon::makeCorridor = (x,y,length,direction) ->
   len=Math.randInt(2,length)
   floor=getTile("corridor")
@@ -95,6 +96,7 @@ Dungeon::makeCorridor = (x,y,length,direction) ->
       @setCell xtemp, ytemp, floor
       xtemp--
   true
+
 Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
   xlen= Math.randInt 4,xlength
   ylen= Math.randInt 4,ylength
@@ -168,7 +170,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
       ytemp=y
       while ytemp< y+ylen
-        xtemp= x-xlen/2
+        xtemp= westwall
         while xtemp < eastwall
           buildWall = xtemp == westwall || xtemp == insideeastwall || ytemp==y || ytemp == y+ylen-1
           @setCell xtemp,ytemp, if buildWall then wall else floor
@@ -307,6 +309,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   @addSprinkles()
   console.log(@msgNumObjects + @currentFeatures)
   true
+
 Dungeon::addSprinkles = () ->
   #sprinkle out the bonusstuff (stairs, chests etc.) over the map
   newx= 0
