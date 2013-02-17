@@ -104,21 +104,24 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
   if (direction >0 && direction<4)  then dir= direction
   if dir == 0 #north
     ytemp= y
+    westwall= Math.round( x-xlen/2)
+    eastwall= Math.round(x+ (xlen+1)/2)
+
     #check if there's enough space left for it
     while ytemp> y-ylen
       return false if ytemp <0 || ytemp > @ysize
-      xtemp = x-xlen/2
-      while xtemp < x+(xlen+1)/2
+      xtemp = westwall
+      while xtemp < eastwall
         return false if xtemp<0 || xtemp>@xsize || @getCellType(xtemp,ytemp).name != "unused"
         xtemp++
       ytemp--
     #we're here build
-    ytemp=y
+    ytemp= y
     while ytemp>y-ylen
-      xtemp= x-xlen/2
-      while xtemp< x+ (xlen+1)/2
-        buildWall = xtemp == x-xlen/2 || 
-          xtemp == x+(xlen-1)/2 ||
+      xtemp= westwall
+      while xtemp< eastwall
+        buildWall = xtemp == westwall || 
+          xtemp == eastwall ||
           ytemp ==y ||
           ytemp == y-ylen+1
         @setCell xtemp,ytemp, if buildWall then wall else floor

@@ -140,7 +140,7 @@ Dungeon.prototype.makeCorridor = function(x, y, length, direction) {
 };
 
 Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
-  var buildWall, dir, floor, wall, xlen, xtemp, ylen, ytemp;
+  var buildWall, dir, eastwall, floor, wall, westwall, xlen, xtemp, ylen, ytemp;
   xlen = Math.randInt(4, xlength);
   ylen = Math.randInt(4, ylength);
   floor = getTile("dirtFloor");
@@ -151,12 +151,14 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
   }
   if (dir === 0) {
     ytemp = y;
+    westwall = Math.round(x - xlen / 2);
+    eastwall = Math.round(x + (xlen + 1) / 2);
     while (ytemp > y - ylen) {
       if (ytemp < 0 || ytemp > this.ysize) {
         return false;
       }
-      xtemp = x - xlen / 2;
-      while (xtemp < x + (xlen + 1) / 2) {
+      xtemp = westwall;
+      while (xtemp < eastwall) {
         if (xtemp < 0 || xtemp > this.xsize || this.getCellType(xtemp, ytemp).name !== "unused") {
           return false;
         }
@@ -166,9 +168,9 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
     }
     ytemp = y;
     while (ytemp > y - ylen) {
-      xtemp = x - xlen / 2;
-      while (xtemp < x + (xlen + 1) / 2) {
-        buildWall = xtemp === x - xlen / 2 || xtemp === x + (xlen - 1) / 2 || ytemp === y || ytemp === y - ylen + 1;
+      xtemp = westwall;
+      while (xtemp < eastwall) {
+        buildWall = xtemp === westwall || xtemp === eastwall || ytemp === y || ytemp === y - ylen + 1;
         this.setCell(xtemp, ytemp, buildWall ? wall : floor);
         xtemp++;
       }
