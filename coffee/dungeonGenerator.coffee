@@ -293,7 +293,6 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
            @getCellType(newx+1,newy).name =="door"
             validTile= -1
           break if validTile>-1
-      console.log('validTile:'+validTile)
       if validTile>-1
         console.log('valid!:'+validTile)
         feature= Math.randInt 0,100
