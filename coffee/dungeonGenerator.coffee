@@ -14,9 +14,9 @@ Tiles = [new Tile("unused"," ","black"),
      
       
   ]
-  getTile = name -> 
-  matches =Tiles.Filter( (t) -> t.name==name)
-  matches[0] if matches.length>0
+  getTile = (name) -> 
+    matches = Tiles.Filter( (t) -> t.name==name)
+    matches[0] if matches.length>0
     
 
 Dungeon = (x,y,objects) ->
@@ -26,7 +26,7 @@ Dungeon = (x,y,objects) ->
   @xsize=0
   @ysize=0
   
-  @objects=object
+  @objects=objects
   @chanceRoom=75;
   
   @dungeonMap=[] 
@@ -184,10 +184,13 @@ Dungeon::showDungeon = () ->
     x=0
     row= '';
     while x<@xsize
-      row+= @getTile(x,y).src
+      row+= getTile(x,y).src
       x++
     console.log(row)
     y++
+Tile::isDirtfloorOrCorridor =() -> 
+  this.name =="dirtFloor" || this.name=="corridor"
+
 Dungeon::createDungeon = (inx,iny,inobj) ->
   @objects = if inobj < 1 then 10 else inobj
   if inx<3
@@ -206,7 +209,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   console.log(@msgYSize+@ysize)
   console.log(@msgMaxObject+@objects)
   #redefine map var to the adjusted map size
-  @dungeonMap=new [@xsize*@ysize]
+  @dungeonMap=[]
   y= 0
   while y< @ysize
     x= 0
@@ -215,7 +218,91 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
       @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
       x++
     y++
+  #start with a room in the middle
+  @makeRoom @xsize/2, @ysize/2,8,6,Math.randInt(0,3)
+  currentFeatures= 1 #we just made a room so we start with 1
+  countingTries=0
+  while countingTries<1000
+    break if currentFeatures==@objects
+    newx = 0
+    xmod = 0
+    newy = 0
+    ymod = 0
+    validTile = -1
+    testing= 0
+    while testing<1000
+      newx= Math.randInt 1,@xsize-1
+      newy= Math.randInt 1, @ysize-1
+      validTile= -1
+      cellType= @getCellType newx,newy
+      if cellType.name=="dirtWall" || cellType.name =="corridor"
+        #check if we can reach the place
+        if @getCellType(newx, newy+1).isDirtfloorOrCorridor() 
+          validTile = 0;
+          xmod = 0
+          ymod = -1
+        else if @getCellType(newx-1, newy).isDirtfloorOrCorridor() 
+          validTile = 1
+          xmod = +1
+          ymod = 0
+        else if @getCellType(newx, newy-1).isDirtfloorOrCorridor() 
+          validTile = 2
+          xmod = 0
+          ymod = +1
+        else if @getCellType(newx+1, newy).isDirtfloorOrCorridor() 
+          validTile = 3
+          xmod = -1
+          ymod = 0
+        if validTile > (-1) 
+          if @getCellType(newx, newy+1).name == "door" ||
+           @getCellType(newx-1,newy).name =="door" ||
+           @getCellType(newx,newy-1).name =="door" ||
+           @getCellType(newx+1,newy).name =="door"
+            validTile= -1
+          break if validTile>-1
+        if validTile>-1
+          feature= Math.randInt 0,100
+          if feature <= @chanceRoom #a new room
+            if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
+              currentFeatures++
+              @setCell newx,newy, getTile("door")
+              #clean up in front of the door so we can reach it
+              @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
+          else if feature >= chanceRoom
+            if makeCorridor newx+xmod, newy+ymod, 6, validTile
+              currentFeatures++
+              @setCell newx,newy,getTile("door")
 
-
-
+      testing++
+    countingTries++
+  @addSprinkles()
+  console.log(@msgNumObjects + @currentFeatures)
+  true
+Dungeon::addSprinkles = () ->
+  #sprinkle out the bonusstuff (stairs, chests etc.) over the map
+  newx= 0
+  newy= 0
+  ways= 0
+  state= 0
+  while state !=10
+    testing=0
+    while testing<1000
+      newx= Math.randInt(1,xsize-1)
+      newy= Math.randInt(1, ysize-2) #cheap bugfix, pulls down newy to 0<y<24, from 0<y<25
+      ways=4
+      cantgo = (x,y) -> @getCellType(x,y).isDirtfloorOrCorridor() || @getCellType(x,y).name !="door"
+      #north
+      ways-- if cantgo newx,newy+1
+      ways-- if cantgo newx-1,newy
+      ways-- if cantgo newx,newy-1
+      ways-- if cantgo newx+1,newy
+      if state ==0 && ways ==0
+        @setCell newxy,newy, getTile "upStairs"
+        state= 1
+        break
+      if state==1 && ways==0
+        @setCell newx,newy getTile "downStairs"
+        state= 10
+        break;
+      testing++
 
