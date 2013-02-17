@@ -25,7 +25,7 @@
         <table>
             <tbody data-bind="foreach: rows">
                 <tr data-bind="foreach: $data,attr:{'data-y':$index}">
-                    <td data-bind="text:src">
+                    <td data-bind="text:src, attr:{'data-x':$index},style:{color:color}">
                         test
                     </td>
                 </tr>

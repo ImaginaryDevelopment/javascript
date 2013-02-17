@@ -236,7 +236,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
     northwall = Math.round(y + (ylen + 1) / 2);
     insidenorthwall = Math.round(y + (ylen - 1) / 2);
     ytemp = southwall;
-    while (ytemp < y + (ylen + 1) / 2) {
+    while (ytemp < northwall) {
       if (ytemp < 0 || ytemp > this.ysize) {
         return false;
       }
@@ -250,7 +250,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       ytemp++;
     }
     this.dungeonFeatures.push(new Feature("room", x, southwall, x + xlen, insidenorthwall));
-    ytemp = y - ylen / 2;
+    ytemp = southwall;
     while (ytemp < northwall) {
       xtemp = x;
       while (xtemp < x + xlen) {
@@ -475,7 +475,7 @@ Dungeon.prototype.addSprinkles = function() {
       var _results1;
       _results1 = [];
       while (testing < 1000) {
-        newx = Math.randInt(1, this.xsize - 1);
+        newx = Math.randInt(1, this.xsize - 2);
         newy = Math.randInt(1, this.ysize - 2);
         ways = 4;
         self = this;
@@ -495,12 +495,14 @@ Dungeon.prototype.addSprinkles = function() {
           ways--;
         }
         if (state === 0 && ways === 0) {
-          this.setCell(newx, newy, getTile("upStairs"));
+          this.dungeonFeatures.push(new Feature("upStairs", newx, newy, newx, newy));
           state = 1;
+          this.setCell(newx, newy, getTile("upStairs"));
           break;
         }
         if (state === 1 && ways === 0) {
           this.setCell(newx, newy, getTile("downStairs"));
+          this.dungeonFeatures.push(new Feature("downStairs", newx, newy, newx, newy));
           state = 10;
           break;
         }

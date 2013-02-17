@@ -53,7 +53,7 @@ Dungeon::initialize = (x,y) ->
   #redefine map var to the adjusted map size
   @dungeonMap=[]
   @dungeonFeatures=[]
-  
+
   y= 0
   while y< @ysize
     x= 0
@@ -174,7 +174,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
     ytemp= southwall
 
 
-    while ytemp < y+ (ylen+1)/2
+    while ytemp < northwall
       return false if ytemp<0 || ytemp> @ysize
       xtemp= x
       while xtemp < x+xlen
@@ -183,7 +183,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
     #we're here build
     @dungeonFeatures.push(new Feature("room",x,southwall,x+xlen,insidenorthwall))
-    ytemp= y-ylen/2
+    ytemp= southwall
     while ytemp< northwall
       xtemp= x
       while xtemp< x+xlen
@@ -348,7 +348,7 @@ Dungeon::addSprinkles = () ->
   while state !=10
     testing=0
     while testing<1000
-      newx= Math.randInt 1, @xsize-1
+      newx= Math.randInt 1, @xsize-2
       newy= Math.randInt 1, @ysize-2 #cheap bug fix, pulls down new y to 0<y<24, from 0<y<25
       ways=4
       self= this
@@ -359,11 +359,13 @@ Dungeon::addSprinkles = () ->
       ways-- if cantgo newx,newy-1
       ways-- if cantgo newx+1,newy
       if state ==0 && ways ==0
-        @setCell newx,newy, getTile( "upStairs")
+        @dungeonFeatures.push(new Feature("upStairs",newx,newy,newx,newy))
         state= 1
+        @setCell newx,newy, getTile( "upStairs")
         break
       if state==1 && ways==0
         @setCell newx,newy, getTile("downStairs")
+        @dungeonFeatures.push(new Feature("downStairs",newx,newy,newx,newy))
         state= 10
         break;
       testing++
