@@ -310,7 +310,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
     countingTries++
 
   @addSprinkles()
-  console.log(@msgNumObjects + @currentFeatures)
+  console.log(@msgNumObjects + currentFeatures)
   true
 
 Dungeon::addSprinkles = () ->

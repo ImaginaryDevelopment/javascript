@@ -397,7 +397,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
     countingTries++;
   }
   this.addSprinkles();
-  console.log(this.msgNumObjects + this.currentFeatures);
+  console.log(this.msgNumObjects + currentFeatures);
   return true;
 };
 
