@@ -36,6 +36,7 @@ Dungeon = () ->
   @msgXSize = "X size of dungeon: \t"
   @msgYSize = "Y size of dungeon: \t"
   @msgMaxObject = "Max objects: \t"
+  @msgNumObjects = "Created objects: \t"
   this
 
 Dungeon::setCell= (x,y,cellType) ->

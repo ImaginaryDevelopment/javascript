@@ -44,6 +44,7 @@ Dungeon = function() {
   this.msgXSize = "X size of dungeon: \t";
   this.msgYSize = "Y size of dungeon: \t";
   this.msgMaxObject = "Max objects: \t";
+  this.msgNumObjects = "Created objects: \t";
   return this;
 };
 
