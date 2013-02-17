@@ -283,7 +283,7 @@ Dungeon.prototype.showDungeon = function() {
       row += this.getCellType(x, y).src;
       x++;
     }
-    console.log(row(+" " + y));
+    console.log(row + " " + y);
     _results.push(y++);
   }
   return _results;
