@@ -370,31 +370,32 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         }
         if (validTile > (-1)) {
           if (this.getCellType(newx, newy + 1).name === "door" || this.getCellType(newx - 1, newy).name === "door" || this.getCellType(newx, newy - 1).name === "door" || this.getCellType(newx + 1, newy).name === "door") {
+            console.log('invalidating tile for door');
             validTile = -1;
           }
         }
-        if (validTile > -1) {
+        if (validTile >= 0) {
           break;
         }
       }
-      if (validTile > -1) {
-        console.log('valid!:' + validTile);
-        feature = Math.randInt(0, 100);
-        if (feature <= this.chanceRoom) {
-          console.log('making a room!');
-          if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
-            console.log('made a room!');
-            currentFeatures++;
-            this.setCell(newx, newy, getTile("door"));
-            this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
-          }
-        } else if (feature >= this.chanceRoom) {
-          console.log('making a corridor!');
-          if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
-            console.log('made a corridor!');
-            currentFeatures++;
-            this.setCell(newx, newy, getTile("door"));
-          }
+    }
+    if (validTile > -1) {
+      console.log('valid!:' + validTile);
+      feature = Math.randInt(0, 100);
+      if (feature <= this.chanceRoom) {
+        console.log('making a room!');
+        if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
+          console.log('made a room!');
+          currentFeatures++;
+          this.setCell(newx, newy, getTile("door"));
+          this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
+        }
+      } else if (feature >= this.chanceRoom) {
+        console.log('making a corridor!');
+        if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
+          console.log('made a corridor!');
+          currentFeatures++;
+          this.setCell(newx, newy, getTile("door"));
         }
       }
       testing++;
