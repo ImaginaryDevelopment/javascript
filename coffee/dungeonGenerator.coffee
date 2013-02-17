@@ -187,7 +187,7 @@ Dungeon::showDungeon = () ->
     x=0
     row= '';
     while x<@xsize
-      row+= @getTile(x,y).src
+      row+= @getCellType(x,y).src
       x++
     console.log(row)
     y++
