@@ -69,6 +69,27 @@ Dungeon = function() {
   return this;
 };
 
+Dungeon.prototype.initialize = function(x, y) {
+  var buildWall;
+  this.xsize = x;
+  this.ysize = y;
+  console.log(this.msgXSize + this.xsize);
+  console.log(this.msgYSize + this.ysize);
+  this.dungeonMap = [];
+  this.dungeonFeatures = [];
+  y = 0;
+  while (y < this.ysize) {
+    x = 0;
+    while (x < this.xsize) {
+      buildWall = y === 0 || y === this.ysize - 1 || x === 0 || x === this.xsize - 1;
+      this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
+      x++;
+    }
+    y++;
+  }
+  return true;
+};
+
 Dungeon.prototype.setCell = function(x, y, cellType) {
   return this.dungeonMap[x + this.xsize * y] = cellType;
 };
@@ -323,26 +344,6 @@ Dungeon.prototype.showDungeon = function() {
   return _results;
 };
 
-Dungeon.prototype.initialize = function(x, y) {
-  var buildWall;
-  this.xsize = x;
-  this.ysize = y;
-  console.log(this.msgXSize + this.xsize);
-  console.log(this.msgYSize + this.ysize);
-  this.dungeonMap = [];
-  y = 0;
-  while (y < this.ysize) {
-    x = 0;
-    while (x < this.xsize) {
-      buildWall = y === 0 || y === this.ysize - 1 || x === 0 || x === this.xsize - 1;
-      this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
-      x++;
-    }
-    y++;
-  }
-  return true;
-};
-
 Dungeon.prototype.findvalidTile = function() {
   validTile;
 
@@ -450,7 +451,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         if (this.makeCorridor(validTile.newx + validTile.xmod, validTile.newy + validTile.ymod, 6, validTile.validTile)) {
           console.log('made a corridor!');
           currentFeatures++;
-          this.setCell(newx, newy, getTile("door"));
+          this.setCell(validTile.newx, validTile.newy, getTile("door"));
         }
       }
     }

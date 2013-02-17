@@ -44,6 +44,25 @@ Dungeon = () ->
   @msgMaxObject = "Max objects: \t"
   @msgNumObjects = "Created objects: \t"
   this
+Dungeon::initialize = (x,y) ->
+  @xsize=x
+  @ysize=y
+  console.log(@msgXSize+@xsize)
+  console.log(@msgYSize+@ysize)
+  
+  #redefine map var to the adjusted map size
+  @dungeonMap=[]
+  @dungeonFeatures=[]
+  
+  y= 0
+  while y< @ysize
+    x= 0
+    while x<@xsize
+      buildWall= y==0 || y==@ysize-1 || x==0 || x == @xsize-1
+      @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
+      x++
+    y++
+  true
 
 Dungeon::setCell= (x,y,cellType) ->
   @dungeonMap[x+@xsize*y]=cellType
@@ -232,23 +251,7 @@ Dungeon::showDungeon = () ->
     console.log row + " " + y
     y++
 
-Dungeon::initialize = (x,y) ->
-  @xsize=x
-  @ysize=y
-  console.log(@msgXSize+@xsize)
-  console.log(@msgYSize+@ysize)
-  
-  #redefine map var to the adjusted map size
-  @dungeonMap=[]
-  y= 0
-  while y< @ysize
-    x= 0
-    while x<@xsize
-      buildWall= y==0 || y==@ysize-1 || x==0 || x == @xsize-1
-      @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
-      x++
-    y++
-  true
+
 
 Dungeon::findvalidTile =() ->
   validTile
@@ -328,7 +331,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
         if @makeCorridor validTile.newx+validTile.xmod, validTile.newy+validTile.ymod, 6, validTile.validTile
           console.log('made a corridor!')
           currentFeatures++
-          @setCell newx,newy,getTile("door")
+          @setCell validTile.newx,validTile.newy,getTile("door")
 
   console.log("countingTries:"+countingTries)
 
@@ -346,7 +349,7 @@ Dungeon::addSprinkles = () ->
     testing=0
     while testing<1000
       newx= Math.randInt 1, @xsize-1
-      newy= Math.randInt 1, @ysize-2 #cheap bugfix, pulls down newy to 0<y<24, from 0<y<25
+      newy= Math.randInt 1, @ysize-2 #cheap bug fix, pulls down new y to 0<y<24, from 0<y<25
       ways=4
       self= this
       cantgo = (x,y) -> self.getCellType(x,y).isDirtfloorOrCorridor() || self.getCellType(x,y).name !="door"
