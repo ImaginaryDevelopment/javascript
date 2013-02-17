@@ -387,6 +387,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         if (validTile >= 0) {
           break;
         }
+        testing++;
       }
     }
     if (validTile > -1) {
@@ -406,7 +407,6 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
           this.setCell(newx, newy, getTile("door"));
         }
       }
-      testing++;
     }
     countingTries++;
   }

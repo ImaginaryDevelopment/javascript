@@ -303,6 +303,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
             console.log('invalidating tile for door')
             validTile= -1
         break if validTile >= 0
+        testing++
     if validTile > -1
       feature= Math.randInt 0,100
       if feature <= @chanceRoom #a new room
@@ -318,7 +319,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
           console.log('made a corridor!')
           currentFeatures++
           @setCell newx,newy,getTile("door")
-      testing++
+      
     countingTries++
 
   console.log("countingTries:"+countingTries)
