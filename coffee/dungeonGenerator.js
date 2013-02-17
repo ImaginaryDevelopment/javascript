@@ -268,7 +268,7 @@ Dungeon.prototype.showDungeon = function() {
     x = 0;
     row = '';
     while (x < this.xsize) {
-      row += getTile(x, y).src;
+      row += this.getTile(x, y).src;
       x++;
     }
     console.log(row);

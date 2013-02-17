@@ -139,7 +139,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
     while ytemp< y+(ylen+1)/2
       xtemp= x
       while xtemp< x+xlen
-        buildWall = xtemp == x || temp == x+ xlen-1 || ytemp == y-ylen/2 || ytemp == y+(ylen-1)/2
+        buildWall = xtemp == x || xtemp == x+ xlen-1 || ytemp == y-ylen/2 || ytemp == y+(ylen-1)/2
         @setCell xtemp,ytemp, if buildWall then wall else floor  
         xtemp++
       ytemp++
@@ -187,7 +187,7 @@ Dungeon::showDungeon = () ->
     x=0
     row= '';
     while x<@xsize
-      row+= getTile(x,y).src
+      row+= @getTile(x,y).src
       x++
     console.log(row)
     y++
@@ -300,11 +300,11 @@ Dungeon::addSprinkles = () ->
       ways-- if cantgo newx,newy-1
       ways-- if cantgo newx+1,newy
       if state ==0 && ways ==0
-        @setCell newxy,newy, getTile "upStairs"
+        @setCell newx,newy, getTile( "upStairs")
         state= 1
         break
       if state==1 && ways==0
-        @setCell newx,newy getTile "downStairs"
+        @setCell newx,newy, getTile("downStairs")
         state= 10
         break;
       testing++
