@@ -104,8 +104,9 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
   if (direction >0 && direction<4)  then dir= direction
   if dir == 0 #north
     ytemp= y
-    westwall= Math.round( x-xlen/2)
-    eastwall= Math.round(x+ (xlen+1)/2)
+    westwall= Math.round  x-xlen/2
+    insideEast= Math.round x+(xlen-1)/2
+    eastwall= Math.round x+ (xlen+1)/2
 
     #check if there's enough space left for it
     while ytemp> y-ylen
@@ -121,7 +122,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       xtemp= westwall
       while xtemp< eastwall
         buildWall = xtemp == westwall || 
-          xtemp == eastwall ||
+          xtemp == insideEast ||
           ytemp ==y ||
           ytemp == y-ylen+1
         @setCell xtemp,ytemp, if buildWall then wall else floor
@@ -129,7 +130,11 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp--
   if dir == 1 #east
-    ytemp= y-ylen/2
+    northwall= Math.round y-ylen/2
+    southwall= Math.round y+(ylen+1)/2
+
+    ytemp= northwall
+
     while ytemp < y+ (ylen+1)/2
       return false if ytemp<0 || ytemp> @ysize
       xtemp= x
@@ -231,7 +236,9 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   @initialize(@xsize,@ysize)
   console.log(@msgMaxObject+@objects)
   #start with a room in the middle
-  @makeRoom @xsize/2, @ysize/2,8,6,Math.randInt(0,3)
+  xcenter= Math.round @xsize/2
+  ycenter= Math.round @ysize/2
+  @makeRoom xcenter, ycenter,8,6,Math.randInt(0,3)
   currentFeatures= 1 #we just made a room so we start with 1
   countingTries=0
   while countingTries<1000

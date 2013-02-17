@@ -140,7 +140,7 @@ Dungeon.prototype.makeCorridor = function(x, y, length, direction) {
 };
 
 Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
-  var buildWall, dir, eastwall, floor, wall, westwall, xlen, xtemp, ylen, ytemp;
+  var buildWall, dir, eastwall, floor, insideEast, northwall, southwall, wall, westwall, xlen, xtemp, ylen, ytemp;
   xlen = Math.randInt(4, xlength);
   ylen = Math.randInt(4, ylength);
   floor = getTile("dirtFloor");
@@ -152,6 +152,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
   if (dir === 0) {
     ytemp = y;
     westwall = Math.round(x - xlen / 2);
+    insideEast = Math.round(x + (xlen - 1) / 2);
     eastwall = Math.round(x + (xlen + 1) / 2);
     while (ytemp > y - ylen) {
       if (ytemp < 0 || ytemp > this.ysize) {
@@ -170,7 +171,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
     while (ytemp > y - ylen) {
       xtemp = westwall;
       while (xtemp < eastwall) {
-        buildWall = xtemp === westwall || xtemp === eastwall || ytemp === y || ytemp === y - ylen + 1;
+        buildWall = xtemp === westwall || xtemp === insideEast || ytemp === y || ytemp === y - ylen + 1;
         this.setCell(xtemp, ytemp, buildWall ? wall : floor);
         xtemp++;
       }
@@ -178,7 +179,9 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
     }
   }
   if (dir === 1) {
-    ytemp = y - ylen / 2;
+    northwall = Math.round(y - ylen / 2);
+    southwall = Math.round(y + (ylen + 1) / 2);
+    ytemp = northwall;
     while (ytemp < y + (ylen + 1) / 2) {
       if (ytemp < 0 || ytemp > this.ysize) {
         return false;
@@ -300,7 +303,7 @@ Dungeon.prototype.initialize = function(x, y) {
 };
 
 Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
-  var cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, xmod, ymod;
+  var cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, xcenter, xmod, ycenter, ymod;
   this.objects = inobj < 1 ? 10 : inobj;
   if (inx < 3) {
     this.xsize = 3;
@@ -318,7 +321,9 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
   }
   this.initialize(this.xsize, this.ysize);
   console.log(this.msgMaxObject + this.objects);
-  this.makeRoom(this.xsize / 2, this.ysize / 2, 8, 6, Math.randInt(0, 3));
+  xcenter = Math.round(this.xsize / 2);
+  ycenter = Math.round(this.ysize / 2);
+  this.makeRoom(xcenter, ycenter, 8, 6, Math.randInt(0, 3));
   currentFeatures = 1;
   countingTries = 0;
   while (countingTries < 1000) {
