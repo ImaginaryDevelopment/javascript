@@ -33,12 +33,12 @@ getTile = function(name) {
   }
 };
 
-Dungeon = function(x, y, objects) {
-  this.xmax = x;
-  this.ymax = y;
+Dungeon = function() {
+  this.xmax;
+  this.ymax;
   this.xsize = 0;
   this.ysize = 0;
-  this.objects = objects;
+  this.objects;
   this.chanceRoom = 75;
   this.dungeonMap = [];
   this.msgXSize = "X size of dungeon: \t";
@@ -277,8 +277,27 @@ Dungeon.prototype.showDungeon = function() {
   return _results;
 };
 
+Dungeon.prototype.initialize = function(x, y) {
+  var buildWall, _results;
+  console.log(this.msgXSize + this.xsize);
+  console.log(this.msgYSize + this.ysize);
+  this.dungeonMap = [];
+  y = 0;
+  _results = [];
+  while (y < this.ysize) {
+    x = 0;
+    while (x < this.xsize) {
+      buildWall = y === 0 || y === this.ysize - 1 || x === 0 || x === this.xsize - 1;
+      this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
+      x++;
+    }
+    _results.push(y++);
+  }
+  return _results;
+};
+
 Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
-  var buildWall, cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, x, xmod, y, ymod;
+  var cellType, countingTries, currentFeatures, feature, newx, newy, testing, validTile, xmod, ymod;
   this.objects = inobj < 1 ? 10 : inobj;
   if (inx < 3) {
     this.xsize = 3;
@@ -294,20 +313,8 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
   } else {
     this.ysize = iny;
   }
-  console.log(this.msgXSize + this.xsize);
-  console.log(this.msgYSize + this.ysize);
+  this.initialize(this.xsize, this.ysize);
   console.log(this.msgMaxObject + this.objects);
-  this.dungeonMap = [];
-  y = 0;
-  while (y < this.ysize) {
-    x = 0;
-    while (x < this.xsize) {
-      buildWall = y === 0 || y === this.ysize - 1 || x === 0 || x === this.xsize - 1;
-      this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
-      x++;
-    }
-    y++;
-  }
   this.makeRoom(this.xsize / 2, this.ysize / 2, 8, 6, Math.randInt(0, 3));
   currentFeatures = 1;
   countingTries = 0;

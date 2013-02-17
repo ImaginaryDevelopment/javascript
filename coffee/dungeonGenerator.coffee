@@ -22,14 +22,14 @@ Tiles = [new Tile("unused"," ","black"),
     matches[0] if matches.length>0
     
 
-Dungeon = (x,y,objects) ->
-  @xmax=x
-  @ymax=y
+Dungeon = () ->
+  @xmax
+  @ymax
   
   @xsize=0
   @ysize=0
   
-  @objects=objects
+  @objects
   @chanceRoom=75;
   
   @dungeonMap=[] 
@@ -192,6 +192,21 @@ Dungeon::showDungeon = () ->
     console.log(row)
     y++
 
+Dungeon::initialize = (x,y) ->
+  console.log(@msgXSize+@xsize)
+  console.log(@msgYSize+@ysize)
+  
+  #redefine map var to the adjusted map size
+  @dungeonMap=[]
+  y= 0
+  while y< @ysize
+    x= 0
+    while x<@xsize
+      buildWall= y==0 || y==@ysize-1 || x==0 || x == @xsize-1
+      @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
+      x++
+    y++
+
 
 Dungeon::createDungeon = (inx,iny,inobj) ->
   @objects = if inobj < 1 then 10 else inobj
@@ -207,19 +222,8 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
     @ysize=@ymax
   else
     @ysize=iny
-  console.log(@msgXSize+@xsize)
-  console.log(@msgYSize+@ysize)
+  @initialize(@xsize,@ysize)
   console.log(@msgMaxObject+@objects)
-  #redefine map var to the adjusted map size
-  @dungeonMap=[]
-  y= 0
-  while y< @ysize
-    x= 0
-    while x<@xsize
-      buildWall= y==0 || y==@ysize-1 || x==0 || x == @xsize-1
-      @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
-      x++
-    y++
   #start with a room in the middle
   @makeRoom @xsize/2, @ysize/2,8,6,Math.randInt(0,3)
   currentFeatures= 1 #we just made a room so we start with 1
