@@ -387,8 +387,8 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         if (validTile >= 0) {
           break;
         }
-        testing++;
       }
+      testing++;
     }
     if (validTile > -1) {
       feature = Math.randInt(0, 100);
