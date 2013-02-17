@@ -376,7 +376,9 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
           }
         }
       }
+      console.log('validTile:' + validTile);
       if (validTile > -1) {
+        console.log('valid!:' + validTile);
         feature = Math.randInt(0, 100);
         if (feature <= this.chanceRoom) {
           if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {

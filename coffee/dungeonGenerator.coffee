@@ -293,7 +293,9 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
            @getCellType(newx+1,newy).name =="door"
             validTile= -1
           break if validTile>-1
+      console.log('validTile:'+validTile)
       if validTile>-1
+        console.log('valid!:'+validTile)
         feature= Math.randInt 0,100
         if feature <= @chanceRoom #a new room
           if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
@@ -305,7 +307,6 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
           if makeCorridor newx+xmod, newy+ymod, 6, validTile
             currentFeatures++
             @setCell newx,newy,getTile("door")
-
       testing++
     countingTries++
 
