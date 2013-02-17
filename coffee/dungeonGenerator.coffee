@@ -24,7 +24,9 @@ Tiles = [new Tile("unused","_","black",true),
   getTile = (name) -> 
     matches = Tiles.filter( (t) -> t.name==name)
     matches[0] if matches.length>0
-    
+
+class Feature
+  constructor: (@name, @x,@y,@yEnd,@xEnd) ->
 
 Dungeon = () ->
   @xmax
@@ -35,7 +37,7 @@ Dungeon = () ->
   
   @objects
   @chanceRoom=75;
-  
+  @dungeonFeatures=[]
   @dungeonMap=[] 
   @msgXSize = "X size of dungeon: \t"
   @msgYSize = "Y size of dungeon: \t"
@@ -49,7 +51,7 @@ Dungeon::setCell= (x,y,cellType) ->
 Dungeon::getCellType= (x,y) -> @dungeonMap[x+@xsize*y]
 
 Dungeon::inBounds= (x,y) -> 
-  x>=0 && x<@xsize && y>=0 && y>=@ysize
+  x>=0 && x<@xsize && y>=0 && y <= @ysize
 
 Dungeon::isUnused= (x,y) ->
   @inBounds(x,y) && @getCellType(x,y).name =="unused"
@@ -115,7 +117,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
   ylen= Math.randInt 4,ylength
   floor= getTile("dirtFloor")
   wall= getTile("dirtWall")
-  dir=0
+  dir= 0
   if (direction >0 && direction<4)  then dir= direction
   if dir == 0 #north
     ytemp= y
@@ -132,6 +134,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp--
     #we're here build
+    @dungeonFeatures.push(new Feature("room",westwall,y,insideeastwall,y-ylen))
     ytemp= y
     while ytemp>y-ylen
       xtemp= westwall
@@ -160,8 +163,9 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp++
     #we're here build
+    @dungeonFeatures.push(new Feature("room",x,southwall,x+xlen,insidenorthwall))
     ytemp= y-ylen/2
-    while ytemp< y+(ylen+1)/2
+    while ytemp< northwall
       xtemp= x
       while xtemp< x+xlen
         buildWall = xtemp == x || xtemp == x+ xlen-1 || ytemp == southwall || ytemp == insidenorthwall
@@ -182,6 +186,8 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp++
       ytemp=y
+      #build
+      @dungeonFeatures.push(new Feature("room",westwall,y,insideeastwall,y-ylen))
       while ytemp< y+ylen
         xtemp= westwall
         while xtemp < eastwall
@@ -204,7 +210,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
     ytemp= southwall
     while ytemp < northwall
-      xtemp=x 
+      xtemp= x 
       while xtemp > x-xlen
         buildWall= xtemp == x || xtemp == x-xlen+1 || ytemp ==southwall || ytemp = insidenorthwall
         @setCell xtemp,ytemp, if buildWall then wall else floor
@@ -244,6 +250,39 @@ Dungeon::initialize = (x,y) ->
     y++
   true
 
+Dungeon::findvalidTile =() ->
+  validTile
+  testing= 0
+  while testing<=1000
+    testing++
+    newx= Math.randInt 1,@xsize-1
+    newy= Math.randInt 1, @ysize-1
+    validTile= undefined
+    cellType= @getCellType newx,newy
+    if cellType.name=="dirtWall" || cellType.name =="corridor"
+      #check if we can reach the place
+      cell1= @getCellType(newx,newy+1)
+      cell2= @getCellType(newx-1,newy)
+      cell3= @getCellType(newx,newy-1)
+      cell4= @getCellType(newx+1,newy)
+      if cell1 && cell1.isDirtfloorOrCorridor() 
+        validTile = {validTile:0,newx:newx,newy:newy, xmod:0, ymod:-1};
+      else if cell2 && cell2.isDirtfloorOrCorridor() 
+        validTile= {validTile:1,xmod:+1,ymod:0}
+      else if cell3 && cell3.isDirtfloorOrCorridor() 
+        validTile= {validTile:2,xmod:0,ymod:+1};
+      else if cell4 && cell4.isDirtfloorOrCorridor()  
+        validTile= {validTile:3,xmod:-1,ymod:0};
+      if validTile > (-1) 
+        if (cell1 && cell1.name == "door") ||
+         (cell2 && cell2.name == "door") ||
+         (cell3 && cell3.name == "door") ||
+         (cell4 && cell4.name == "door")
+          console.log('invalidating tile for door')
+          validTile= undefined
+      break if validTile >= 0
+  
+  validTile
 
 Dungeon::createDungeon = (inx,iny,inobj) ->
   @objects = if inobj < 1 then 10 else inobj
@@ -264,70 +303,32 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   #start with a room in the middle
   xcenter= Math.round @xsize/2
   ycenter= Math.round @ysize/2
-  @makeRoom xcenter, ycenter,8,6,Math.randInt(0,3)
+  console.log('making start room')
+  madeStart= @makeRoom xcenter, ycenter,8,6,Math.randInt(0,3)
+  if madeStart is false then throw "couldn't make start room"
+  @showDungeon
   currentFeatures= 1 #we just made a room so we start with 1
   countingTries= 0
-  while countingTries<1000
+  while countingTries<=1000
+    countingTries++
     break if currentFeatures>=@objects
-    newx = 0
-    xmod = 0
-    newy = 0
-    ymod = 0
-    validTile = -1
-    testing= 0
-    while testing<1000
-      newx= Math.randInt 1,@xsize-1
-      newy= Math.randInt 1, @ysize-1
-      validTile= -1
-      cellType= @getCellType newx,newy
-      if cellType.name=="dirtWall" || cellType.name =="corridor"
-        #check if we can reach the place
-        cell1= @getCellType(newx,newy+1)
-        cell2= @getCellType(newx-1,newy)
-        cell3= @getCellType(newx,newy-1)
-        cell4= @getCellType(newx+1,newy)
-        if cell1 && cell1.isDirtfloorOrCorridor() 
-          validTile = 0;
-          xmod = 0
-          ymod = -1
-        else if cell2 && cell2.isDirtfloorOrCorridor() 
-          validTile = 1
-          xmod = +1
-          ymod = 0
-        else if cell3 && cell3.isDirtfloorOrCorridor() 
-          validTile = 2
-          xmod = 0
-          ymod = +1
-        else if cell4 && cell4.isDirtfloorOrCorridor()  
-          validTile = 3
-          xmod = -1
-          ymod = 0
-        if validTile > (-1) 
-          if (cell1 && cell1.name == "door") ||
-           (cell2 && cell2.name == "door") ||
-           (cell3 && cell3.name == "door") ||
-           (cell4 && cell4.name == "door")
-            console.log('invalidating tile for door')
-            validTile= -1
-        break if validTile >= 0
-      testing++
-    if validTile > -1
+    validTile = @findvalidTile()
+    if validTile && validTile.validTile>=0
+      console.log('making a feature!')
       feature= Math.randInt 0,100
       if feature <= @chanceRoom #a new room
-        if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
+        if @makeRoom validTile.newx+validTile.xmod, validTile.newy+validTile.ymod, 8,6,validTile.validTile
           console.log('made a room!')
           currentFeatures++
-          @setCell newx,newy, getTile("door")
+          @setCell validTile.newx,validTile.newy, getTile("door")
           #clean up in front of the door so we can reach it
-          @setCell newx+xmod, newy + ymod, getTile("dirtFloor")
+          @setCell validTile.newx+validTile.xmod, validTile.newy + validTile.ymod, getTile("dirtFloor")
       else if feature >= @chanceRoom
         console.log('making a corridor!')
-        if @makeCorridor newx+xmod, newy+ymod, 6, validTile
+        if @makeCorridor validTile.newx+validTile.xmod, validTile.newy+validTile.ymod, 6, validTile.validTile
           console.log('made a corridor!')
           currentFeatures++
           @setCell newx,newy,getTile("door")
-      
-    countingTries++
 
   console.log("countingTries:"+countingTries)
 
@@ -336,7 +337,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   true
 
 Dungeon::addSprinkles = () ->
-  #sprinkle out the bonusstuff (stairs, chests etc.) over the map
+  #sprinkle out the bonus stuff (stairs, chests etc.) over the map
   newx= 0
   newy= 0
   ways= 0

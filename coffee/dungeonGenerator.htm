@@ -10,7 +10,17 @@
             <input type="text" data-bind="value: x" />
             y size:
             <input type="text" data-bind="value: y" />
+            features desired:
+            <input type="text" data-bind="value: objectsdesired" />
+
             <input type="button" data-bind="click: generate" value="generate" />
+            
+        </div>
+         <div data-role="summary">
+        	x:<div data-bind="text: lastInputs().x"></div>
+			y:<div data-bind="text: lastInputs().y"></div>
+			features desired:<div data-bind="text: lastInputs().objectsdesired"></div>
+			features: <div data-bind="text: features.length"></div>
         </div>
         <table>
             <tbody data-bind="foreach: rows">
@@ -21,6 +31,7 @@
                 </tr>
             </tbody>
         </table>
+
         <script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js">
         </script>
         <script src="dungeonGenerator.js">
@@ -32,9 +43,15 @@
         d.createDungeon(x, y, objects);
         self.x = ko.observable(x);
         self.y = ko.observable(y);
+        self.features=ko.observableArray();
+        self.objectsdesired=ko.observable(objects)
+        self.lastInputs=ko.observable();
+
         self.rows = ko.observableArray();
         self.generate = function() {
-        	d.createDungeon(self.x(),self.y(),objects);
+        	if(self.features() && self.features().length>0)
+				self.features.removeAll();
+        	d.createDungeon(self.x(),self.y(),self.objectsdesired());
         	for(var j=0; j<self.rows().length;j++)
         		self.rows()[j].removeAll();
             self.rows.removeAll();
@@ -44,6 +61,9 @@
                     self.rows()[j].push(d.getCellType(i, j));
                 }
             }
+            self.lastInputs({x:self.x(),y:self.y(),objectsdesired:self.objectsdesired()});
+            
+            self.features(d.features);
         };
         self.generate();
 
