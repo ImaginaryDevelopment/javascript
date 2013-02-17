@@ -3,22 +3,30 @@
   var Dungeon, Tile, Tiles, getTile;
 
   Math.randInt = function(min, max) {
-    return Math.floor(Math.random() * (max - min(+1))) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  Tile = function(name, src, color) {
-    return {
-      name: name,
-      src: src,
-      color: color
-    };
+  Tile = (function() {
+
+    function Tile(name, src, color) {
+      this.name = name;
+      this.src = src;
+      this.color = color;
+    }
+
+    return Tile;
+
+  })();
+
+  Tile.prototype.isDirtfloorOrCorridor = function() {
+    return this.name === "dirtFloor" || this.name === "corridor";
   };
 
   Tiles = [new Tile("unused", " ", "black"), new Tile("dirtWall", "+", "brown"), new Tile("dirtFloor", "_", "brown"), new Tile("stoneWall", "+", "grey"), new Tile("corridor", "c", "brown"), new Tile("door", "D", "brown"), new Tile("upStairs", "u", "yellow"), new Tile("downStairs", "d", "yellow")];
 
   getTile = function(name) {
     var matches;
-    matches = Tiles.Filter(function(t) {
+    matches = Tiles.filter(function(t) {
       return t.name === name;
     });
     if (matches.length > 0) {
@@ -162,7 +170,7 @@
         xtemp = x - xlen / 2;
         while (xtemp < x + (xlen + 1) / 2) {
           buildWall = xtemp === x - xlen / 2 || xtemp === x + (xlen - 1) / 2 || ytemp === y || ytemp === y - ylen + 1;
-          this.setCell(xtemp, ytemp(buildWall ? wall : floor));
+          this.setCell(xtemp, ytemp, buildWall ? wall : floor);
           xtemp++;
         }
         ytemp--;
@@ -213,7 +221,7 @@
           xtemp = x - xlen / 2;
           while (xtemp < x + (xlen + 1) / 2) {
             buildWall = xtemp === x - xlen / 2 || xtemp === x + (xlen - 1) / 2 || ytemp === y || ytemp === y + ylen - 1;
-            this.setCell(xtemp, ytemp(buildWall ? wall : floor));
+            this.setCell(xtemp, ytemp, buildWall ? wall : floor);
             xtemp++;
           }
           ytemp++;
@@ -240,7 +248,7 @@
         xtemp = x;
         while (xtemp > x - xlen) {
           buildWall = xtemp === x || xtemp === x - xlen + 1 || ytemp === y - ylen / 2 || (ytemp = y + (ylen - 1) / 2);
-          this.setCell(xtemp, ytemp(buildWall ? wall : floor));
+          this.setCell(xtemp, ytemp, buildWall ? wall : floor);
           xtemp--;
         }
         ytemp++;
@@ -268,10 +276,6 @@
       _results.push(y++);
     }
     return _results;
-  };
-
-  Tile.prototype.isDirtfloorOrCorridor = function() {
-    return this.name === "dirtFloor" || this.name === "corridor";
   };
 
   Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
@@ -375,7 +379,7 @@
   };
 
   Dungeon.prototype.addSprinkles = function() {
-    var cantgo, newx, newy, state, testing, ways, _results;
+    var cantgo, newx, newy, self, state, testing, ways, _results;
     newx = 0;
     newy = 0;
     ways = 0;
@@ -387,11 +391,12 @@
         var _results1;
         _results1 = [];
         while (testing < 1000) {
-          newx = Math.randInt(1, xsize - 1);
-          newy = Math.randInt(1, ysize - 2);
+          newx = Math.randInt(1, this.xsize - 1);
+          newy = Math.randInt(1, this.ysize - 2);
           ways = 4;
+          self = this;
           cantgo = function(x, y) {
-            return this.getCellType(x, y).isDirtfloorOrCorridor() || this.getCellType(x, y).name !== "door";
+            return self.getCellType(x, y).isDirtfloorOrCorridor() || self.getCellType(x, y).name !== "door";
           };
           if (cantgo(newx, newy + 1)) {
             ways--;

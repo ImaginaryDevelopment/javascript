@@ -1,7 +1,10 @@
 Math.randInt = (min,max) ->
-  Math.floor(Math.random() * (max - min +1)) + min
+  Math.floor(Math.random() * (max - min + 1)) + min
   
-Tile= (name,src,color) -> {name,src,color}
+class Tile 
+  constructor: (@name,@src,@color) ->
+Tile::isDirtfloorOrCorridor =() -> 
+  this.name =="dirtFloor" || this.name=="corridor"
 
 Tiles = [new Tile("unused"," ","black"),
      new Tile("dirtWall","+","brown"),
@@ -15,7 +18,7 @@ Tiles = [new Tile("unused"," ","black"),
       
   ]
   getTile = (name) -> 
-    matches = Tiles.Filter( (t) -> t.name==name)
+    matches = Tiles.filter( (t) -> t.name==name)
     matches[0] if matches.length>0
     
 
@@ -118,7 +121,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
           xtemp == x+(xlen-1)/2 ||
           ytemp ==y ||
           ytemp == y-ylen+1
-        @setCell xtemp,ytemp if buildWall then wall else floor
+        @setCell xtemp,ytemp, if buildWall then wall else floor
 
         xtemp++
       ytemp--
@@ -154,7 +157,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp= x-xlen/2
         while xtemp < x+(xlen+1)/2
           buildWall = xtemp == x-xlen/2 || xtemp == x+(xlen-1)/2 || ytemp==y || ytemp == y+ylen-1
-          @setCell xtemp,ytemp if buildWall then wall else floor
+          @setCell xtemp,ytemp, if buildWall then wall else floor
           xtemp++
         ytemp++
   if dir ==3 #west
@@ -171,7 +174,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       xtemp=x 
       while xtemp > x-xlen
         buildWall= xtemp == x || xtemp == x-xlen+1 || ytemp == y-ylen/2 || ytemp = y+ (ylen-1)/2
-        @setCell xtemp,ytemp if buildWall then wall else floor
+        @setCell xtemp,ytemp, if buildWall then wall else floor
         xtemp--
       ytemp++
   true
@@ -188,8 +191,7 @@ Dungeon::showDungeon = () ->
       x++
     console.log(row)
     y++
-Tile::isDirtfloorOrCorridor =() -> 
-  this.name =="dirtFloor" || this.name=="corridor"
+
 
 Dungeon::createDungeon = (inx,iny,inobj) ->
   @objects = if inobj < 1 then 10 else inobj
@@ -287,10 +289,11 @@ Dungeon::addSprinkles = () ->
   while state !=10
     testing=0
     while testing<1000
-      newx= Math.randInt(1,xsize-1)
-      newy= Math.randInt(1, ysize-2) #cheap bugfix, pulls down newy to 0<y<24, from 0<y<25
+      newx= Math.randInt 1, @xsize-1
+      newy= Math.randInt 1, @ysize-2 #cheap bugfix, pulls down newy to 0<y<24, from 0<y<25
       ways=4
-      cantgo = (x,y) -> @getCellType(x,y).isDirtfloorOrCorridor() || @getCellType(x,y).name !="door"
+      self= this
+      cantgo = (x,y) -> self.getCellType(x,y).isDirtfloorOrCorridor() || self.getCellType(x,y).name !="door"
       #north
       ways-- if cantgo newx,newy+1
       ways-- if cantgo newx-1,newy
