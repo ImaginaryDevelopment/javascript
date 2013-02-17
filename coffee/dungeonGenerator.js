@@ -415,7 +415,7 @@ Dungeon.prototype.addSprinkles = function() {
           break;
         }
         if (state === 1 && ways === 0) {
-          this.setCell(newx, newy(getTile("downStairs")));
+          this.setCell(newx, newy, getTile("downStairs"));
           state = 10;
           break;
         }
