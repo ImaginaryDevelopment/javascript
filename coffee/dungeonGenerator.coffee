@@ -273,22 +273,18 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
         #check if we can reach the place
         if @getCellType(newx, newy+1).isDirtfloorOrCorridor() 
           validTile = 0;
-          console.log 'feature valid:'+validTile
           xmod = 0
           ymod = -1
         else if @getCellType(newx-1, newy).isDirtfloorOrCorridor() 
           validTile = 1
-          console.log 'feature valid:'+validTile
           xmod = +1
           ymod = 0
         else if @getCellType(newx, newy-1).isDirtfloorOrCorridor() 
           validTile = 2
-          console.log 'feature valid:'+validTile
           xmod = 0
           ymod = +1
         else if @getCellType(newx+1, newy).isDirtfloorOrCorridor() 
           validTile = 3
-          console.log 'feature valid:'+validTile
           xmod = -1
           ymod = 0
         if validTile > (-1) 
@@ -302,13 +298,17 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
         console.log('valid!:'+validTile)
         feature= Math.randInt 0,100
         if feature <= @chanceRoom #a new room
+          console.log('making a room!')
           if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
+            console.log('made a room!')
             currentFeatures++
             @setCell newx,newy, getTile("door")
             #clean up in front of the door so we can reach it
             @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
         else if feature >= @chanceRoom
+          console.log('making a corridor!')
           if makeCorridor newx+xmod, newy+ymod, 6, validTile
+            console.log('made a corridor!')
             currentFeatures++
             @setCell newx,newy,getTile("door")
       testing++

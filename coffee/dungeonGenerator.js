@@ -353,22 +353,18 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
       if (cellType.name === "dirtWall" || cellType.name === "corridor") {
         if (this.getCellType(newx, newy + 1).isDirtfloorOrCorridor()) {
           validTile = 0;
-          console.log('feature valid:' + validTile);
           xmod = 0;
           ymod = -1;
         } else if (this.getCellType(newx - 1, newy).isDirtfloorOrCorridor()) {
           validTile = 1;
-          console.log('feature valid:' + validTile);
           xmod = +1;
           ymod = 0;
         } else if (this.getCellType(newx, newy - 1).isDirtfloorOrCorridor()) {
           validTile = 2;
-          console.log('feature valid:' + validTile);
           xmod = 0;
           ymod = +1;
         } else if (this.getCellType(newx + 1, newy).isDirtfloorOrCorridor()) {
           validTile = 3;
-          console.log('feature valid:' + validTile);
           xmod = -1;
           ymod = 0;
         }
@@ -385,13 +381,17 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
         console.log('valid!:' + validTile);
         feature = Math.randInt(0, 100);
         if (feature <= this.chanceRoom) {
+          console.log('making a room!');
           if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
+            console.log('made a room!');
             currentFeatures++;
             this.setCell(newx, newy, getTile("door"));
             this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
           }
         } else if (feature >= this.chanceRoom) {
+          console.log('making a corridor!');
           if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
+            console.log('made a corridor!');
             currentFeatures++;
             this.setCell(newx, newy, getTile("door"));
           }
