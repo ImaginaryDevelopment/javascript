@@ -382,7 +382,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
               this.setCell(newx, newy, getTile("door"));
               this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
             }
-          } else if (feature >= chanceRoom) {
+          } else if (feature >= this.chanceRoom) {
             if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
               currentFeatures++;
               this.setCell(newx, newy, getTile("door"));

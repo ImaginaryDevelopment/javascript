@@ -300,13 +300,14 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
               @setCell newx,newy, getTile("door")
               #clean up in front of the door so we can reach it
               @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
-          else if feature >= chanceRoom
+          else if feature >= @chanceRoom
             if makeCorridor newx+xmod, newy+ymod, 6, validTile
               currentFeatures++
               @setCell newx,newy,getTile("door")
 
       testing++
     countingTries++
+  
   @addSprinkles()
   console.log(@msgNumObjects + @currentFeatures)
   true
