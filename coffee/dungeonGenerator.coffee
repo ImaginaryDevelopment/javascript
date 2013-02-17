@@ -255,7 +255,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   ycenter= Math.round @ysize/2
   @makeRoom xcenter, ycenter,8,6,Math.randInt(0,3)
   currentFeatures= 1 #we just made a room so we start with 1
-  countingTries=0
+  countingTries= 0
   while countingTries<1000
     break if currentFeatures==@objects
     newx = 0
@@ -294,7 +294,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
            @getCellType(newx+1,newy).name =="door"
             validTile= -1
         break if validTile>-1
-      if validTile>-1
+      if validTile > -1
         console.log('valid!:'+validTile)
         feature= Math.randInt 0,100
         if feature <= @chanceRoom #a new room
@@ -313,6 +313,8 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
             @setCell newx,newy,getTile("door")
       testing++
     countingTries++
+  
+  console.log("countingTries:"+countingTries)
 
   @addSprinkles()
   console.log(@msgNumObjects + currentFeatures)
