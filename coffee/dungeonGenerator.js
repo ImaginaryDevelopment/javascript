@@ -249,4 +249,60 @@
     return true;
   };
 
+  Dungeon.prototype.getDungeon = function() {
+    return this.dungeonMap;
+  };
+
+  Dungeon.prototype.showDungeon = function() {
+    var row, x, y, _results;
+    y = 0;
+    _results = [];
+    while (y < this.ysize) {
+      x = 0;
+      row = '';
+      while (x < this.xsize) {
+        row += this.getTile(x, y).src;
+        x++;
+      }
+      console.log(row);
+      _results.push(y++);
+    }
+    return _results;
+  };
+
+  Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
+    var buildWall, x, y, _results;
+    this.objects = inobj < 1 ? 10 : inobj;
+    if (inx < 3) {
+      this.xsize = 3;
+    } else if (iny > this.ymax) {
+      this.ysize = this.ymax;
+    } else {
+      this.xsize = inx;
+    }
+    if (iny < 3) {
+      this.ysize = this.ymax;
+    } else if (iny > this.ymax) {
+      this.ysize = this.ymax;
+    } else {
+      this.ysize = iny;
+    }
+    console.log(this.msgXSize + this.xsize);
+    console.log(this.msgYSize + this.ysize);
+    console.log(this.msgMaxObject + this.objects);
+    this.dungeonMap = new [this.xsize * this.ysize];
+    y = 0;
+    _results = [];
+    while (y < this.ysize) {
+      x = 0;
+      while (x < this.xsize) {
+        buildWall = y === 0 || y === this.ysize - 1 || x === 0 || x === this.xsize - 1;
+        this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
+        x++;
+      }
+      _results.push(y++);
+    }
+    return _results;
+  };
+
 }).call(this);

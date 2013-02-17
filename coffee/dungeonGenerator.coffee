@@ -175,4 +175,47 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp--
       ytemp++
   true
-  
+
+Dungeon::getDungeon = () -> @dungeonMap
+
+Dungeon::showDungeon = () ->
+  y= 0
+  while y<@ysize
+    x=0
+    row= '';
+    while x<@xsize
+      row+= @getTile(x,y).src
+      x++
+    console.log(row)
+    y++
+Dungeon::createDungeon = (inx,iny,inobj) ->
+  @objects = if inobj < 1 then 10 else inobj
+  if inx<3
+    @xsize=3
+  else if iny> @ymax
+    @ysize=@ymax
+  else
+    @xsize=inx
+  if iny<3
+    @ysize=@ymax
+  else if iny>@ymax
+    @ysize=@ymax
+  else
+    @ysize=iny
+  console.log(@msgXSize+@xsize)
+  console.log(@msgYSize+@ysize)
+  console.log(@msgMaxObject+@objects)
+  #redefine map var to the adjusted map size
+  @dungeonMap=new [@xsize*@ysize]
+  y= 0
+  while y< @ysize
+    x= 0
+    while x<@xsize
+      buildWall= y==0 || y==@ysize-1 || x==0 || x == @xsize-1
+      @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
+      x++
+    y++
+
+
+
+
