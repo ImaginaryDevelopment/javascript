@@ -4,7 +4,7 @@ based on
 http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dungeon-Building_Algorithm
 */
 
-var Dungeon, Feature, Tile, Tiles, getTile;
+var Dungeon, Feature, Tile, Tiles, getTile, imgBase, makeImg;
 
 Math.randInt = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -12,8 +12,9 @@ Math.randInt = function(min, max) {
 
 Tile = (function() {
 
-  function Tile(name, src, color, passable) {
+  function Tile(name, compatChar, src, color, passable) {
     this.name = name;
+    this.compatChar = compatChar;
     this.src = src;
     this.color = color;
     this.passable = passable;
@@ -27,7 +28,13 @@ Tile.prototype.isDirtfloorOrCorridor = function() {
   return this.name === "dirtFloor" || this.name === "corridor";
 };
 
-Tiles = [new Tile("unused", "_", "black", true), new Tile("dirtWall", "+", "brown", false), new Tile("dirtFloor", ".", "brown", true), new Tile("stoneWall", "O", "grey", false), new Tile("corridor", "#", "brown", true), new Tile("door", "D", "brown", true), new Tile("upStairs", "<", "yellow", true), new Tile("downStairs", ">", "yellow", true)];
+imgBase = "http://imaginarydevelopment.com/assets/planetcute png/";
+
+makeImg = function(base, suffix) {
+  return "<img src=\"" + base + suffix + "\" />";
+};
+
+Tiles = [new Tile("unused", "_", " ", "black", true), new Tile("dirtWall", "+", makeImg(imgBase, "Dirt Block.png"), "brown", false), new Tile("dirtFloor", ".", makeImg(imgBase, "Brown Block.png"), "brown", true), new Tile("stoneWall", "O", makeImg(imgBase, "Rock.png"), "grey", false), new Tile("corridor", "#", makeImg(imgBase, "Stone Block.png"), "brown", true), new Tile("door", "D", makeImg(imgBase, "Wood Block.png"), "brown", true), new Tile("upStairs", "<", makeImg(imgBase, "Ramp West.png"), "#CC6633", true), new Tile("downStairs", ">", makeImg(imgBase, "Ramp East.png"), "#CC6633", true)];
 
 getTile = function(name) {
   var matches;
@@ -193,6 +200,7 @@ Dungeon.prototype.makeCorridor = function(x, y, length, direction) {
 
 Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
   var buildWall, dir, eastwall, floor, insideEast, insideeastwall, insidenorthwall, northwall, southwall, wall, westwall, xlen, xtemp, ylen, ytemp;
+  console.log("attempting to make room:" + x + "," + y);
   xlen = Math.randInt(4, xlength);
   ylen = Math.randInt(4, ylength);
   floor = getTile("dirtFloor");
@@ -219,7 +227,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       }
       ytemp--;
     }
-    this.dungeonFeatures.push(new Feature("room", westwall, y, insideeastwall, y - ylen));
+    this.dungeonFeatures.push(new Feature("nroom", westwall, y, insideeastwall, y - ylen));
     ytemp = y;
     while (ytemp > y - ylen) {
       xtemp = westwall;
@@ -249,7 +257,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       }
       ytemp++;
     }
-    this.dungeonFeatures.push(new Feature("room", x, southwall, x + xlen, insidenorthwall));
+    this.dungeonFeatures.push(new Feature("eroom", x, southwall, x + xlen, insidenorthwall));
     ytemp = southwall;
     while (ytemp < northwall) {
       xtemp = x;
@@ -279,7 +287,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       }
       ytemp++;
       ytemp = y;
-      this.dungeonFeatures.push(new Feature("room", westwall, y, insideeastwall, y - ylen));
+      this.dungeonFeatures.push(new Feature("sroom", westwall, y, insideeastwall, y - ylen));
       while (ytemp < y + ylen) {
         xtemp = westwall;
         while (xtemp < eastwall) {
@@ -310,6 +318,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
       ytemp++;
     }
     ytemp = southwall;
+    this.dungeonFeatures.push(new Feature("wroom", westwall, y, insideeastwall, y - ylen));
     while (ytemp < northwall) {
       xtemp = x;
       while (xtemp > x - xlen) {
@@ -371,18 +380,24 @@ Dungeon.prototype.findvalidTile = function() {
       } else if (cell2 && cell2.isDirtfloorOrCorridor()) {
         validTile = {
           validTile: 1,
+          newx: newx,
+          newy: newy,
           xmod: +1,
           ymod: 0
         };
       } else if (cell3 && cell3.isDirtfloorOrCorridor()) {
         validTile = {
           validTile: 2,
+          newx: newx,
+          newy: newy,
           xmod: 0,
           ymod: +1
         };
       } else if (cell4 && cell4.isDirtfloorOrCorridor()) {
         validTile = {
           validTile: 3,
+          newx: newx,
+          newy: newy,
           xmod: -1,
           ymod: 0
         };
@@ -440,6 +455,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
       console.log('making a feature!');
       feature = Math.randInt(0, 100);
       if (feature <= this.chanceRoom) {
+        console.log('making a room at ' + JSON.stringify(validTile));
         if (this.makeRoom(validTile.newx + validTile.xmod, validTile.newy + validTile.ymod, 8, 6, validTile.validTile)) {
           console.log('made a room!');
           currentFeatures++;

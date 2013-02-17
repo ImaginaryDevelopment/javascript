@@ -1,5 +1,7 @@
 <html>
-    
+    <head>
+    	<link rel="stylesheet" type="text/css" href="dungeonGenerator.css">
+    </head>
     <body>
         <a href="https://github.com/ImaginaryDevelopment/javascript/raw/master/coffee/dungeonGenerator.js">Dungeon Generator.js</a>
         which is based on
@@ -25,7 +27,7 @@
         <table>
             <tbody data-bind="foreach: rows">
                 <tr data-bind="foreach: $data,attr:{'data-y':$index}">
-                    <td data-bind="text:src, attr:{'data-x':$index},style:{color:color}">
+                    <td data-bind="html:src, attr:{'data-x':$index,'data-type':name},style:{color:color}">
                         test
                     </td>
                 </tr>
@@ -64,12 +66,13 @@
             self.lastInputs({x:self.x(),y:self.y(),objectsdesired:self.objectsdesired()});
             
             self.features(d.features);
+            console.log(d.showDungeon());
         };
         self.generate();
 
 
     }
-ko.applyBindings(new dungeonModel(20, 20, 10));
+ko.applyBindings(new dungeonModel(40, 25, 30));
         </script>
     </body>
 

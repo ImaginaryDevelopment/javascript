@@ -6,18 +6,20 @@ Math.randInt = (min,max) ->
   Math.floor(Math.random() * (max - min + 1)) + min
   
 class Tile 
-  constructor: (@name,@src,@color,@passable) ->
+  constructor: (@name,@compatChar,@src,@color,@passable) ->
 Tile::isDirtfloorOrCorridor =() -> 
   this.name =="dirtFloor" || this.name=="corridor"
-
-Tiles = [new Tile("unused","_","black",true),
-     new Tile("dirtWall","+","brown",false),
-     new Tile("dirtFloor",".","brown",true),
-     new Tile("stoneWall","O","grey",false),
-     new Tile("corridor","#","brown",true),
-     new Tile("door","D","brown",true)
-     new Tile("upStairs","<","yellow",true),
-     new Tile("downStairs",">","yellow",true),
+imgBase= "http://imaginarydevelopment.com/assets/planetcute png/"
+makeImg = (base,suffix) ->
+  "<img src=\"" + base + suffix+"\" />"
+Tiles = [new Tile("unused","_"," ","black",true),
+     new Tile("dirtWall","+",makeImg(imgBase, "Dirt Block.png"),"brown",false),
+     new Tile("dirtFloor",".",makeImg(imgBase,"Brown Block.png"), "brown",true),
+     new Tile("stoneWall","O",makeImg(imgBase,"Rock.png"), "grey",false),
+     new Tile("corridor","#",makeImg(imgBase,"Stone Block.png"), "brown",true),
+     new Tile("door","D",makeImg(imgBase,"Wood Block.png"), "brown",true)
+     new Tile("upStairs","<",makeImg(imgBase,"Ramp West.png") , "#CC6633",true),
+     new Tile("downStairs",">",makeImg(imgBase,"Ramp East.png"),"#CC6633",true),
      
       
   ]
@@ -132,6 +134,7 @@ Dungeon::makeCorridor = (x,y,length,direction) ->
   true
 
 Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
+  console.log("attempting to make room:"+x+","+y)
   xlen= Math.randInt 4,xlength
   ylen= Math.randInt 4,ylength
   floor= getTile("dirtFloor")
@@ -153,7 +156,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp--
     #we're here build
-    @dungeonFeatures.push(new Feature("room",westwall,y,insideeastwall,y-ylen))
+    @dungeonFeatures.push(new Feature("nroom",westwall,y,insideeastwall,y-ylen))
     ytemp= y
     while ytemp>y-ylen
       xtemp= westwall
@@ -182,7 +185,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp++
       ytemp++
     #we're here build
-    @dungeonFeatures.push(new Feature("room",x,southwall,x+xlen,insidenorthwall))
+    @dungeonFeatures.push(new Feature("eroom",x,southwall,x+xlen,insidenorthwall))
     ytemp= southwall
     while ytemp< northwall
       xtemp= x
@@ -206,7 +209,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
       ytemp=y
       #build
-      @dungeonFeatures.push(new Feature("room",westwall,y,insideeastwall,y-ylen))
+      @dungeonFeatures.push(new Feature("sroom",westwall,y,insideeastwall,y-ylen))
       while ytemp< y+ylen
         xtemp= westwall
         while xtemp < eastwall
@@ -228,6 +231,8 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
         xtemp--
       ytemp++
     ytemp= southwall
+
+    @dungeonFeatures.push(new Feature("wroom",westwall,y,insideeastwall,y-ylen))
     while ytemp < northwall
       xtemp= x 
       while xtemp > x-xlen
@@ -271,11 +276,11 @@ Dungeon::findvalidTile =() ->
       if cell1 && cell1.isDirtfloorOrCorridor() 
         validTile = {validTile:0,newx:newx,newy:newy, xmod:0, ymod:-1};
       else if cell2 && cell2.isDirtfloorOrCorridor() 
-        validTile= {validTile:1,xmod:+1,ymod:0}
+        validTile= {validTile:1,newx:newx,newy:newy,xmod:+1,ymod:0}
       else if cell3 && cell3.isDirtfloorOrCorridor() 
-        validTile= {validTile:2,xmod:0,ymod:+1};
+        validTile= {validTile:2,newx:newx,newy:newy,xmod:0,ymod:+1};
       else if cell4 && cell4.isDirtfloorOrCorridor()  
-        validTile= {validTile:3,xmod:-1,ymod:0};
+        validTile= {validTile:3,newx:newx,newy:newy,xmod:-1,ymod:0};
       if validTile > (-1) 
         if (cell1 && cell1.name == "door") ||
          (cell2 && cell2.name == "door") ||
@@ -320,6 +325,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
       console.log('making a feature!')
       feature= Math.randInt 0,100
       if feature <= @chanceRoom #a new room
+        console.log 'making a room at '+JSON.stringify(validTile)
         if @makeRoom validTile.newx+validTile.xmod, validTile.newy+validTile.ymod, 8,6,validTile.validTile
           console.log('made a room!')
           currentFeatures++
