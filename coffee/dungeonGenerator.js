@@ -257,7 +257,7 @@ Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
 };
 
 Dungeon.prototype.getDungeon = function() {
-  return this.dungeonMap;
+  return this.dungeonMap.slice(0);
 };
 
 Dungeon.prototype.showDungeon = function() {
@@ -278,12 +278,11 @@ Dungeon.prototype.showDungeon = function() {
 };
 
 Dungeon.prototype.initialize = function(x, y) {
-  var buildWall, _results;
+  var buildWall;
   console.log(this.msgXSize + this.xsize);
   console.log(this.msgYSize + this.ysize);
   this.dungeonMap = [];
   y = 0;
-  _results = [];
   while (y < this.ysize) {
     x = 0;
     while (x < this.xsize) {
@@ -291,9 +290,9 @@ Dungeon.prototype.initialize = function(x, y) {
       this.setCell(x, y, getTile(buildWall ? "stoneWall" : "unused"));
       x++;
     }
-    _results.push(y++);
+    y++;
   }
-  return _results;
+  return true;
 };
 
 Dungeon.prototype.createDungeon = function(inx, iny, inobj) {

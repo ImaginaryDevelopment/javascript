@@ -179,7 +179,7 @@ Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
       ytemp++
   true
 
-Dungeon::getDungeon = () -> @dungeonMap
+Dungeon::getDungeon = () -> @dungeonMap.slice 0
 
 Dungeon::showDungeon = () ->
   y= 0
@@ -206,6 +206,7 @@ Dungeon::initialize = (x,y) ->
       @setCell x,y, getTile(if buildWall then "stoneWall" else "unused")
       x++
     y++
+  true
 
 
 Dungeon::createDungeon = (inx,iny,inobj) ->
