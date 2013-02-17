@@ -12,10 +12,11 @@ Math.randInt = function(min, max) {
 
 Tile = (function() {
 
-  function Tile(name, src, color) {
+  function Tile(name, src, color, passable) {
     this.name = name;
     this.src = src;
     this.color = color;
+    this.passable = passable;
   }
 
   return Tile;
@@ -26,7 +27,7 @@ Tile.prototype.isDirtfloorOrCorridor = function() {
   return this.name === "dirtFloor" || this.name === "corridor";
 };
 
-Tiles = [new Tile("unused", "_", "black"), new Tile("dirtWall", "+", "brown"), new Tile("dirtFloor", ".", "brown"), new Tile("stoneWall", "O", "grey"), new Tile("corridor", "#", "brown"), new Tile("door", "D", "brown"), new Tile("upStairs", "<", "yellow"), new Tile("downStairs", ">", "yellow")];
+Tiles = [new Tile("unused", "_", "black", true), new Tile("dirtWall", "+", "brown", false), new Tile("dirtFloor", ".", "brown", true), new Tile("stoneWall", "O", "grey", false), new Tile("corridor", "#", "brown", true), new Tile("door", "D", "brown", true), new Tile("upStairs", "<", "yellow", true), new Tile("downStairs", ">", "yellow", true)];
 
 getTile = function(name) {
   var matches;
@@ -356,19 +357,19 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
       validTile = -1;
       cellType = this.getCellType(newx, newy);
       if (cellType.name === "dirtWall" || cellType.name === "corridor") {
-        if (this.getCellType(newx, newy + 1).isDirtfloorOrCorridor()) {
+        if (this.getCellType(newx, newy + 1) && this.getCellType(newx, newy + 1).isDirtfloorOrCorridor()) {
           validTile = 0;
           xmod = 0;
           ymod = -1;
-        } else if (this.getCellType(newx - 1, newy).isDirtfloorOrCorridor()) {
+        } else if (this.getCellType(newx - 1, newy) && this.getCellType(newx - 1, newy).isDirtfloorOrCorridor()) {
           validTile = 1;
           xmod = +1;
           ymod = 0;
-        } else if (this.getCellType(newx, newy - 1).isDirtfloorOrCorridor()) {
+        } else if (this.getCellType(newx, newy - 1) && this.getCellType(newx, newy - 1).isDirtfloorOrCorridor()) {
           validTile = 2;
           xmod = 0;
           ymod = +1;
-        } else if (this.getCellType(newx + 1, newy).isDirtfloorOrCorridor()) {
+        } else if (this.getCellType(newx + 1, newy) && this.getCellType(newx + 1, newy).isDirtfloorOrCorridor()) {
           validTile = 3;
           xmod = -1;
           ymod = 0;

@@ -6,18 +6,18 @@ Math.randInt = (min,max) ->
   Math.floor(Math.random() * (max - min + 1)) + min
   
 class Tile 
-  constructor: (@name,@src,@color) ->
+  constructor: (@name,@src,@color,@passable) ->
 Tile::isDirtfloorOrCorridor =() -> 
   this.name =="dirtFloor" || this.name=="corridor"
 
-Tiles = [new Tile("unused","_","black"),
-     new Tile("dirtWall","+","brown"),
-     new Tile("dirtFloor",".","brown"),
-     new Tile("stoneWall","O","grey"),
-     new Tile("corridor","#","brown"),
-     new Tile("door","D","brown")
-     new Tile("upStairs","<","yellow"),
-     new Tile("downStairs",">","yellow"),
+Tiles = [new Tile("unused","_","black",true),
+     new Tile("dirtWall","+","brown",false),
+     new Tile("dirtFloor",".","brown",true),
+     new Tile("stoneWall","O","grey",false),
+     new Tile("corridor","#","brown",true),
+     new Tile("door","D","brown",true)
+     new Tile("upStairs","<","yellow",true),
+     new Tile("downStairs",">","yellow",true),
      
       
   ]
@@ -275,19 +275,19 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
       cellType= @getCellType newx,newy
       if cellType.name=="dirtWall" || cellType.name =="corridor"
         #check if we can reach the place
-        if @getCellType(newx, newy+1).isDirtfloorOrCorridor() 
+        if @getCellType(newx, newy+1) && @getCellType(newx, newy+1).isDirtfloorOrCorridor() 
           validTile = 0;
           xmod = 0
           ymod = -1
-        else if @getCellType(newx-1, newy).isDirtfloorOrCorridor() 
+        else if @getCellType(newx-1, newy) && @getCellType(newx-1,newy).isDirtfloorOrCorridor() 
           validTile = 1
           xmod = +1
           ymod = 0
-        else if @getCellType(newx, newy-1).isDirtfloorOrCorridor() 
+        else if @getCellType(newx, newy-1) && @getCellType(newx,newy-1).isDirtfloorOrCorridor() 
           validTile = 2
           xmod = 0
           ymod = +1
-        else if @getCellType(newx+1, newy).isDirtfloorOrCorridor() 
+        else if @getCellType(newx+1, newy) && @getCellType(newx+1,newy).isDirtfloorOrCorridor() 
           validTile = 3
           xmod = -1
           ymod = 0
