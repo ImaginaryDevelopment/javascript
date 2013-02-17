@@ -43,6 +43,7 @@ Dungeon = function() {
   this.dungeonMap = [];
   this.msgXSize = "X size of dungeon: \t";
   this.msgYSize = "Y size of dungeon: \t";
+  this.msgMaxObject = "Max objects: \t";
   return this;
 };
 
@@ -374,19 +375,19 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
             break;
           }
         }
-        if (validTile > -1) {
-          feature = Math.randInt(0, 100);
-          if (feature <= this.chanceRoom) {
-            if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
-              currentFeatures++;
-              this.setCell(newx, newy, getTile("door"));
-              this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
-            }
-          } else if (feature >= this.chanceRoom) {
-            if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
-              currentFeatures++;
-              this.setCell(newx, newy, getTile("door"));
-            }
+      }
+      if (validTile > -1) {
+        feature = Math.randInt(0, 100);
+        if (feature <= this.chanceRoom) {
+          if (this.makeRoom(newx + xmod, newy + ymod, 8, 6, validTile)) {
+            currentFeatures++;
+            this.setCell(newx, newy, getTile("door"));
+            this.setCell(newx + xmod, newy(+ymod, getTile("dirtFloor")));
+          }
+        } else if (feature >= this.chanceRoom) {
+          if (makeCorridor(newx + xmod, newy + ymod, 6, validTile)) {
+            currentFeatures++;
+            this.setCell(newx, newy, getTile("door"));
           }
         }
       }

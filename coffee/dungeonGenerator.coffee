@@ -35,6 +35,7 @@ Dungeon = () ->
   @dungeonMap=[] 
   @msgXSize = "X size of dungeon: \t"
   @msgYSize = "Y size of dungeon: \t"
+  @msgMaxObject = "Max objects: \t"
   this
 
 Dungeon::setCell= (x,y,cellType) ->
@@ -292,22 +293,22 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
            @getCellType(newx+1,newy).name =="door"
             validTile= -1
           break if validTile>-1
-        if validTile>-1
-          feature= Math.randInt 0,100
-          if feature <= @chanceRoom #a new room
-            if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
-              currentFeatures++
-              @setCell newx,newy, getTile("door")
-              #clean up in front of the door so we can reach it
-              @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
-          else if feature >= @chanceRoom
-            if makeCorridor newx+xmod, newy+ymod, 6, validTile
-              currentFeatures++
-              @setCell newx,newy,getTile("door")
+      if validTile>-1
+        feature= Math.randInt 0,100
+        if feature <= @chanceRoom #a new room
+          if @makeRoom newx+xmod, newy+ymod, 8,6,validTile
+            currentFeatures++
+            @setCell newx,newy, getTile("door")
+            #clean up in front of the door so we can reach it
+            @setCell newx+xmod, newy +ymod, getTile("dirtFloor")
+        else if feature >= @chanceRoom
+          if makeCorridor newx+xmod, newy+ymod, 6, validTile
+            currentFeatures++
+            @setCell newx,newy,getTile("door")
 
       testing++
     countingTries++
-  
+
   @addSprinkles()
   console.log(@msgNumObjects + @currentFeatures)
   true
