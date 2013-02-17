@@ -209,7 +209,7 @@ Dungeon::showDungeon = () ->
     while x<@xsize
       row+= @getCellType(x,y).src
       x++
-    console.log(row)
+    console.log(row +" "+y)
     y++
 
 Dungeon::initialize = (x,y) ->
