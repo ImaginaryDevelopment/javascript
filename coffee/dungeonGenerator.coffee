@@ -257,7 +257,7 @@ Dungeon::createDungeon = (inx,iny,inobj) ->
   currentFeatures= 1 #we just made a room so we start with 1
   countingTries= 0
   while countingTries<1000
-    break if currentFeatures==@objects
+    break if currentFeatures>=@objects
     newx = 0
     xmod = 0
     newy = 0

@@ -336,7 +336,7 @@ Dungeon.prototype.createDungeon = function(inx, iny, inobj) {
   currentFeatures = 1;
   countingTries = 0;
   while (countingTries < 1000) {
-    if (currentFeatures === this.objects) {
+    if (currentFeatures >= this.objects) {
       break;
     }
     newx = 0;
