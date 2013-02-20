@@ -1,8 +1,13 @@
+<Query Kind="Program">
+  <Reference>&lt;RuntimeDirectory&gt;\System.ComponentModel.Annotations.dll</Reference>
+  <Namespace>System.ComponentModel</Namespace>
+</Query>
+
 //http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dungeon-Building_Algorithm
 void Main()
 {
 	//initial stuff used in making the map
-		int x = 80; int y = 25; int dungeon_objects = 50;
+		int x = 80; int y = 25; int dungeon_objects = 40;
  		
 		//convert a string to a int, if there's more then one arg
 //		if (args.length >= 1)
@@ -24,7 +29,16 @@ void Main()
 			for (int j = 0; j < y; j++)
 			for (int i = 0; i < x; i++)
 			{
-				dungeon[j,i]=generator.GetCellTile(i,j);
+				try
+				{	        
+					dungeon[j,i]=generator.GetCellTile(i,j);
+				}
+				catch (IndexOutOfRangeException ex)
+				{
+					new{i,j}.Dump("exceptional");
+					throw;
+				}
+				
 			}
 			dungeon.Dump();
 			//generator.showDungeon();
@@ -85,7 +99,16 @@ public class Dungeon{
  
 	//returns the type of a tile
  	public Tile GetCellType(int x, int y){
-		return dungeon_map[x + xsize * y];
+		try
+		{	        
+			return dungeon_map[x + xsize * y];
+		}
+		catch (IndexOutOfRangeException ex)
+		{
+			new{x,y}.Dump("exceptional");
+			throw;
+		}
+		
 	}
 	//The RNG. the seed is based on seconds from the "java epoch" ( I think..)
 	//perhaps it's the same date as the unix epoch
@@ -104,9 +127,9 @@ public class Dungeon{
 		return min + i;
 	}
  
-	private bool makeCorridor(int x, int y, int lenght, int direction){
+	private bool makeCorridor(int x, int y, int length, int direction){
 		//define the dimensions of the corridor (er.. only the width and height..)
-		int len = getRand(2, lenght);
+		int len = getRand(2, length);
 		Tile floor = Tile.Corridor;
 		int dir = 0;
 		if (direction > 0 && direction < 4) dir = direction;
@@ -116,14 +139,12 @@ public class Dungeon{
  
 		switch(dir){
 		case 0:
-			
 		//north
 			//check if there's enough space for the corridor
 			//start with checking it's not out of the boundaries
 			if (x < 0 || x > xsize) return false;
 			else xtemp = x;
- 			
-			
+ 
 			//same thing here, to make sure it's not out of the boundaries
 			for (ytemp = y; ytemp > (y-len); ytemp--){
 				if (ytemp < 0 || ytemp > ysize) return false; //oh boho, it was!
