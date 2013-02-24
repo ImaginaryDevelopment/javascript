@@ -4,7 +4,18 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dunge
 ###
 Math.randInt = (min,max) ->
   Math.floor(Math.random() * (max - min + 1)) + min
-  
+if not Array::some
+  Array::some= (f)-> (x for x in @ when f(x)).length>0
+if not Array::every
+  Array::every= (f)-> (x for x in @ when f(x)).length == @length
+if not Array::cross
+  Array::cross= (A)-> 
+    results = []
+    for x in A
+      for y in @
+        results.push {x,y}
+    results.flatten()
+Direction = {North:0,East:1, South:2, West:3} 
 class Tile 
   constructor: (@name,@compatChar,@src,@color,@passable) ->
 Tile::isDirtfloorOrCorridor =() -> 
@@ -29,11 +40,13 @@ Tiles = [new Tile("unused","_"," ","black",true),
 
 class Feature
   constructor: (@name, @x,@y,@yEnd,@xEnd) ->
+class PointI
+  constructor: (@x,@y) ->
 
-Dungeon = () ->
+Dungeon = (irandomizer) ->
   @xmax
   @ymax
-  
+  @rnd=irandomizer
   @xsize=0
   @ysize=0
   
@@ -72,174 +85,48 @@ Dungeon::setCell= (x,y,cellType) ->
 Dungeon::getCellType= (x,y) -> @dungeonMap[x+@xsize*y]
 
 Dungeon::inBounds= (x,y) -> 
-  x>=0 && x<@xsize && y>=0 && y <= @ysize
+  x>=0 && x<@xmax && y>=0 && y <= @ymax
+Dungeon::getCorridorPoints=(x,y,len,direction) ->
+  switch d
+    when Direction.North then [y-len ..y].map (m) -> [x,m]
+    when Direction.East then [x..x+len].map(m) -> [m,y]
+    when Direction.South then [y..y+len].map(m) -> [x,m]
+    when Direction.West then [x-xlen .. x].map(m) -> [m,y]
 
-Dungeon::isUnused= (x,y) ->
-  @inBounds(x,y) && @getCellType(x,y).name =="unused"
-
+  
 Dungeon::makeCorridor = (x,y,length,direction) ->
+  return false if x< 0 || x> @xsize
+  self= @
   len= Math.randInt(2,length)
-  floor= getTile("corridor")
-  dir=0
-  if direction > 0 && direction < 4 then dir= direction
-  xtemp= 0
-  ytemp= 0
-  if dir is 0 #north
-    return false  if x < 0 or x > @xsize
-    xtemp= x
-    ytemp= y
-    while ytemp > (y - len)
-      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-      ytemp--
-    #if we're still here, let's start building
-    ytemp = y
-    while ytemp > (y - len)
-      @setCell xtemp, ytemp, floor
-      ytemp--
-    
-  if (dir== 1) #east
-    return false if (y<0 || y>=@ysize)
-    ytemp=y
-    xtemp=x
-    while xtemp < (x+len)
-      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-      xtemp++
-    xtemp=x
-    while xtemp < (x+len)
-      @setCell(xtemp,ytemp,floor)
-      xtemp++
+  points= @getCorridorPoints(x,y,len,direction)
+  return false if(points.some( (p)-> !@inBounds(p) || @getCellType(p.X,p.Y) != "unused"))
+  (i) -> @setCell(i.X,i.Y,"corridor") for i in points
 
-  if dir is 2 #south
-    return false if x < 0 or x> @xsize
-    xtemp=x
-    ytemp=y
-    while ytemp< (y+len)
-      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-      ytemp++
-    ytemp=y
-    while ytemp < (y+len)
-      @setCell xtemp, ytemp, floor
-      ytemp++
-  if dir is 3 #west
-    return false if ytemp<0 || ytemp>@ysize
-    ytemp=y
-    xtemp=x
-    while xtemp > x-len
-      return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-      xtemp--
-    xtemp=x
-    while xtemp > x-len
-      @setCell xtemp, ytemp, floor
-      xtemp--
   true
+Dungeon::getFeatureLowerBound = (c,len) ->
+  Math.round (c- len/2)
 
+Dungeon::getFeatureUpperBound = (c,len) ->
+  Math.round (c+ (len+1)/2)
+
+Dungeon::getRoomPoints = (x,y,xlen,ylen,d) ->
+  a = @getFeatureLowerBound
+  b= @getFeatureUpperBound
+  switch d
+    when Direction.North then [a(x,xlen)...b(x,xlen)].cross([y...y-ylen]).flatten()
+    when Direction.East then []
+    when Direction.South then []
+    when Direction.West then []
+     
 Dungeon::makeRoom = (x,y,xlength,ylength,direction) ->
+  self= @
   console.log("attempting to make room:"+x+","+y)
   xlen= Math.randInt 4,xlength
   ylen= Math.randInt 4,ylength
   floor= getTile("dirtFloor")
   wall= getTile("dirtWall")
-  dir= 0
-  if (direction >0 && direction<4)  then dir= direction
-  if dir == 0 #north
-    ytemp= y
-    westwall= Math.round  x-xlen/2
-    insideEast= Math.round x+(xlen-1)/2
-    eastwall= Math.round x+ (xlen+1)/2
-
-    #check if there's enough space left for it
-    while ytemp> y-ylen
-      return false if ytemp <0 || ytemp > @ysize
-      xtemp = westwall
-      while xtemp < eastwall
-        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-        xtemp++
-      ytemp--
-    #we're here build
-    @dungeonFeatures.push(new Feature("nroom",westwall,y,insideeastwall,y-ylen))
-    ytemp= y
-    while ytemp>y-ylen
-      xtemp= westwall
-      while xtemp< eastwall
-        buildWall = xtemp == westwall || 
-          xtemp == insideEast ||
-          ytemp ==y ||
-          ytemp == y-ylen+1
-        @setCell xtemp,ytemp, if buildWall then wall else floor
-
-        xtemp++
-      ytemp--
-  if dir == 1 #east
-    southwall= Math.round y-ylen/2
-    northwall= Math.round y+(ylen+1)/2
-    insidenorthwall = Math.round y+ (ylen-1)/2
-
-    ytemp= southwall
-
-
-    while ytemp < northwall
-      return false if ytemp<0 || ytemp> @ysize
-      xtemp= x
-      while xtemp < x+xlen
-        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-        xtemp++
-      ytemp++
-    #we're here build
-    @dungeonFeatures.push(new Feature("eroom",x,southwall,x+xlen,insidenorthwall))
-    ytemp= southwall
-    while ytemp< northwall
-      xtemp= x
-      while xtemp< x+xlen
-        buildWall = xtemp == x || xtemp == x+ xlen-1 || ytemp == southwall || ytemp == insidenorthwall
-        @setCell xtemp,ytemp, if buildWall then wall else floor  
-        xtemp++
-      ytemp++
-  if dir == 2 #south
-    ytemp= y
-    westwall= Math.round x-xlen/2
-    eastwall= Math.round x+(xlen+1)/2
-    insideeastwall = Math.round x+(xlen-1)/2
-
-    while ytemp < y+ylen
-      return false if ytemp <0 || ytemp >= @ysize
-      xtemp= westwall
-      while xtemp< eastwall
-        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-        xtemp++
-      ytemp++
-      ytemp=y
-      #build
-      @dungeonFeatures.push(new Feature("sroom",westwall,y,insideeastwall,y-ylen))
-      while ytemp< y+ylen
-        xtemp= westwall
-        while xtemp < eastwall
-          buildWall = xtemp == westwall || xtemp == insideeastwall || ytemp==y || ytemp == y+ylen-1
-          @setCell xtemp,ytemp, if buildWall then wall else floor
-          xtemp++
-        ytemp++
-  if dir ==3 #west
-    southwall= Math.round y-ylen/2
-    northwall= Math.round y+(ylen+1)/2
-    insidenorthwall= Math.round y+(ylen-1)/2
-
-    ytemp= southwall
-    while ytemp < northwall
-      return false if ytemp <0 || ytemp >= @ysize
-      xtemp=x 
-      while xtemp > x-xlen
-        return false if !@inBounds(xtemp,ytemp) || !@isUnused(xtemp,ytemp)
-        xtemp--
-      ytemp++
-    ytemp= southwall
-
-    @dungeonFeatures.push(new Feature("wroom",westwall,y,insideeastwall,y-ylen))
-    while ytemp < northwall
-      xtemp= x 
-      while xtemp > x-xlen
-        buildWall= xtemp == x || xtemp == x-xlen+1 || ytemp ==southwall || ytemp = insidenorthwall
-        @setCell xtemp,ytemp, if buildWall then wall else floor
-        xtemp--
-      ytemp++
+  points = @getRoomPoints x, y,xlen,ylen,direction
+  return false if points.some((p)-> p.x <0 || p.y> @ysize || p.x <0 || p.y > @xsize || self.getCellType(p.x,p.y) != "unused")
   true
 
 #be warned the array is flat not [,]

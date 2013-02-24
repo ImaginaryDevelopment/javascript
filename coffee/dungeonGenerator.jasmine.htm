@@ -2,14 +2,13 @@
     
     <body>
     	<a href="https://github.com/pivotal/jasmine/wiki/Matchers">Jasmine Matches</a>
+        <script src="sugar.min.js"></script>
 <script src="dungeonGenerator.js"></script>
 <script src="https://github.com/searls/jasmine-all/raw/master/jasmine-all-min.js"></script>
     	<script>
     	var x=80;
 var y=25;
-var dungeon = new Dungeon();
-    dungeon.createDungeon(x, y, 50);
-    dungeon.showDungeon();
+
 describe('Tile',function(){
     it('has a isDirtfloorOrCorridor method',function(){
         expect(new Tile().isDirtfloorOrCorridor).toBeDefined();
@@ -30,7 +29,31 @@ describe('All tiles', function () {
             expect(Tiles[i].name).toBeDefined();
     });  
 });  
+describe('Array::cross',function(){
+    it('should return all points',function(){
+        var result=[0,1].cross([3,4])
+        expect(result.length).toBe(4);
+    });
+
+});
 describe('Dungeon',function(){
+    describe('getFeatureLowerBound',function(){
+        it('should return whole numbers',function(){
+            var actual = new Dungeon().getFeatureLowerBound(3,1);
+            expect(actual).toBe(3);
+        });
+    });
+    describe('getRoomPoints',function(){
+        it('works north',function(){
+            var points=new Dungeon().getRoomPoints(0,0,4,4,Direction.North);
+            expect(points.length).toBe(16);
+            expect(points[0]).toBeDefined();
+            expect(points[0].y).toBe( 0);
+            expect(points[0].x).toBe(-2);
+            expect(points[1].y).toBe(-1);
+            expect(points[1].x).toBe(-2);
+        });
+    });
     describe('initialize',function(){
         var actual=new Dungeon();
         actual.initialize(x,y);
@@ -69,6 +92,7 @@ describe('Dungeon',function(){
         expect(actual).toBe(true);
         
     });
+   
 });
 
     	</script>

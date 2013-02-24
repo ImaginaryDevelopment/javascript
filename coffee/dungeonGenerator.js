@@ -4,10 +4,69 @@ based on
 http://roguebasin.roguelikedevelopment.org/index.php?title=Java_Example_of_Dungeon-Building_Algorithm
 */
 
-var Dungeon, Feature, Tile, Tiles, getTile, imgBase, makeImg;
+var Direction, Dungeon, Feature, PointI, Tile, Tiles, getTile, imgBase, makeImg;
 
 Math.randInt = function(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+if (!Array.prototype.some) {
+  Array.prototype.some = function(f) {
+    var x;
+    return ((function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = this.length; _i < _len; _i++) {
+        x = this[_i];
+        if (f(x)) {
+          _results.push(x);
+        }
+      }
+      return _results;
+    }).call(this)).length > 0;
+  };
+}
+
+if (!Array.prototype.every) {
+  Array.prototype.every = function(f) {
+    var x;
+    return ((function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = this.length; _i < _len; _i++) {
+        x = this[_i];
+        if (f(x)) {
+          _results.push(x);
+        }
+      }
+      return _results;
+    }).call(this)).length === this.length;
+  };
+}
+
+if (!Array.prototype.cross) {
+  Array.prototype.cross = function(A) {
+    var results, x, y, _i, _j, _len, _len1;
+    results = [];
+    for (_i = 0, _len = A.length; _i < _len; _i++) {
+      x = A[_i];
+      for (_j = 0, _len1 = this.length; _j < _len1; _j++) {
+        y = this[_j];
+        results.push({
+          x: x,
+          y: y
+        });
+      }
+    }
+    return results.flatten();
+  };
+}
+
+Direction = {
+  North: 0,
+  East: 1,
+  South: 2,
+  West: 3
 };
 
 Tile = (function() {
@@ -60,9 +119,21 @@ Feature = (function() {
 
 })();
 
-Dungeon = function() {
+PointI = (function() {
+
+  function PointI(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  return PointI;
+
+})();
+
+Dungeon = function(irandomizer) {
   this.xmax;
   this.ymax;
+  this.rnd = irandomizer;
   this.xsize = 0;
   this.ysize = 0;
   this.objects;
@@ -106,228 +177,117 @@ Dungeon.prototype.getCellType = function(x, y) {
 };
 
 Dungeon.prototype.inBounds = function(x, y) {
-  return x >= 0 && x < this.xsize && y >= 0 && y <= this.ysize;
+  return x >= 0 && x < this.xmax && y >= 0 && y <= this.ymax;
 };
 
-Dungeon.prototype.isUnused = function(x, y) {
-  return this.inBounds(x, y) && this.getCellType(x, y).name === "unused";
+Dungeon.prototype.getCorridorPoints = function(x, y, len, direction) {
+  var _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3, _results, _results1, _results2, _results3;
+  switch (d) {
+    case Direction.North:
+      return (function() {
+        _results = [];
+        for (var _i = _ref = y - len; _ref <= y ? _i <= y : _i >= y; _ref <= y ? _i++ : _i--){ _results.push(_i); }
+        return _results;
+      }).apply(this).map(function(m) {
+        return [x, m];
+      });
+    case Direction.East:
+      return (function() {
+        _results1 = [];
+        for (var _j = x, _ref1 = x + len; x <= _ref1 ? _j <= _ref1 : _j >= _ref1; x <= _ref1 ? _j++ : _j--){ _results1.push(_j); }
+        return _results1;
+      }).apply(this).map(m)(function() {
+        return [m, y];
+      });
+    case Direction.South:
+      return (function() {
+        _results2 = [];
+        for (var _k = y, _ref2 = y + len; y <= _ref2 ? _k <= _ref2 : _k >= _ref2; y <= _ref2 ? _k++ : _k--){ _results2.push(_k); }
+        return _results2;
+      }).apply(this).map(m)(function() {
+        return [x, m];
+      });
+    case Direction.West:
+      return (function() {
+        _results3 = [];
+        for (var _l = _ref3 = x - xlen; _ref3 <= x ? _l <= x : _l >= x; _ref3 <= x ? _l++ : _l--){ _results3.push(_l); }
+        return _results3;
+      }).apply(this).map(m)(function() {
+        return [m, y];
+      });
+  }
 };
 
 Dungeon.prototype.makeCorridor = function(x, y, length, direction) {
-  var dir, floor, len, xtemp, ytemp;
+  var len, points, self;
+  if (x < 0 || x > this.xsize) {
+    return false;
+  }
+  self = this;
   len = Math.randInt(2, length);
-  floor = getTile("corridor");
-  dir = 0;
-  if (direction > 0 && direction < 4) {
-    dir = direction;
+  points = this.getCorridorPoints(x, y, len, direction);
+  if (points.some(function(p) {
+    return !this.inBounds(p) || this.getCellType(p.X, p.Y) !== "unused";
+  })) {
+    return false;
   }
-  xtemp = 0;
-  ytemp = 0;
-  if (dir === 0) {
-    if (x < 0 || x > this.xsize) {
-      return false;
+  (function(i) {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = points.length; _i < _len; _i++) {
+      i = points[_i];
+      _results.push(this.setCell(i.X, i.Y, "corridor"));
     }
-    xtemp = x;
-    ytemp = y;
-    while (ytemp > (y - len)) {
-      if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-        return false;
-      }
-      ytemp--;
-    }
-    ytemp = y;
-    while (ytemp > (y - len)) {
-      this.setCell(xtemp, ytemp, floor);
-      ytemp--;
-    }
-  }
-  if (dir === 1) {
-    if (y < 0 || y >= this.ysize) {
-      return false;
-    }
-    ytemp = y;
-    xtemp = x;
-    while (xtemp < (x + len)) {
-      if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-        return false;
-      }
-      xtemp++;
-    }
-    xtemp = x;
-    while (xtemp < (x + len)) {
-      this.setCell(xtemp, ytemp, floor);
-      xtemp++;
-    }
-  }
-  if (dir === 2) {
-    if (x < 0 || x > this.xsize) {
-      return false;
-    }
-    xtemp = x;
-    ytemp = y;
-    while (ytemp < (y + len)) {
-      if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-        return false;
-      }
-      ytemp++;
-    }
-    ytemp = y;
-    while (ytemp < (y + len)) {
-      this.setCell(xtemp, ytemp, floor);
-      ytemp++;
-    }
-  }
-  if (dir === 3) {
-    if (ytemp < 0 || ytemp > this.ysize) {
-      return false;
-    }
-    ytemp = y;
-    xtemp = x;
-    while (xtemp > x - len) {
-      if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-        return false;
-      }
-      xtemp--;
-    }
-    xtemp = x;
-    while (xtemp > x - len) {
-      this.setCell(xtemp, ytemp, floor);
-      xtemp--;
-    }
-  }
+    return _results;
+  });
   return true;
 };
 
+Dungeon.prototype.getFeatureLowerBound = function(c, len) {
+  return Math.round(c - len / 2);
+};
+
+Dungeon.prototype.getFeatureUpperBound = function(c, len) {
+  return Math.round(c + (len + 1) / 2);
+};
+
+Dungeon.prototype.getRoomPoints = function(x, y, xlen, ylen, d) {
+  var a, b, _i, _j, _ref, _ref1, _ref2, _results, _results1;
+  a = this.getFeatureLowerBound;
+  b = this.getFeatureUpperBound;
+  switch (d) {
+    case Direction.North:
+      return (function() {
+        _results1 = [];
+        for (var _j = _ref1 = a(x, xlen), _ref2 = b(x, xlen); _ref1 <= _ref2 ? _j < _ref2 : _j > _ref2; _ref1 <= _ref2 ? _j++ : _j--){ _results1.push(_j); }
+        return _results1;
+      }).apply(this).cross((function() {
+        _results = [];
+        for (var _i = y, _ref = y - ylen; y <= _ref ? _i < _ref : _i > _ref; y <= _ref ? _i++ : _i--){ _results.push(_i); }
+        return _results;
+      }).apply(this)).flatten();
+    case Direction.East:
+      return [];
+    case Direction.South:
+      return [];
+    case Direction.West:
+      return [];
+  }
+};
+
 Dungeon.prototype.makeRoom = function(x, y, xlength, ylength, direction) {
-  var buildWall, dir, eastwall, floor, insideEast, insideeastwall, insidenorthwall, northwall, southwall, wall, westwall, xlen, xtemp, ylen, ytemp;
+  var floor, points, self, wall, xlen, ylen;
+  self = this;
   console.log("attempting to make room:" + x + "," + y);
   xlen = Math.randInt(4, xlength);
   ylen = Math.randInt(4, ylength);
   floor = getTile("dirtFloor");
   wall = getTile("dirtWall");
-  dir = 0;
-  if (direction > 0 && direction < 4) {
-    dir = direction;
-  }
-  if (dir === 0) {
-    ytemp = y;
-    westwall = Math.round(x - xlen / 2);
-    insideEast = Math.round(x + (xlen - 1) / 2);
-    eastwall = Math.round(x + (xlen + 1) / 2);
-    while (ytemp > y - ylen) {
-      if (ytemp < 0 || ytemp > this.ysize) {
-        return false;
-      }
-      xtemp = westwall;
-      while (xtemp < eastwall) {
-        if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-          return false;
-        }
-        xtemp++;
-      }
-      ytemp--;
-    }
-    this.dungeonFeatures.push(new Feature("nroom", westwall, y, insideeastwall, y - ylen));
-    ytemp = y;
-    while (ytemp > y - ylen) {
-      xtemp = westwall;
-      while (xtemp < eastwall) {
-        buildWall = xtemp === westwall || xtemp === insideEast || ytemp === y || ytemp === y - ylen + 1;
-        this.setCell(xtemp, ytemp, buildWall ? wall : floor);
-        xtemp++;
-      }
-      ytemp--;
-    }
-  }
-  if (dir === 1) {
-    southwall = Math.round(y - ylen / 2);
-    northwall = Math.round(y + (ylen + 1) / 2);
-    insidenorthwall = Math.round(y + (ylen - 1) / 2);
-    ytemp = southwall;
-    while (ytemp < northwall) {
-      if (ytemp < 0 || ytemp > this.ysize) {
-        return false;
-      }
-      xtemp = x;
-      while (xtemp < x + xlen) {
-        if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-          return false;
-        }
-        xtemp++;
-      }
-      ytemp++;
-    }
-    this.dungeonFeatures.push(new Feature("eroom", x, southwall, x + xlen, insidenorthwall));
-    ytemp = southwall;
-    while (ytemp < northwall) {
-      xtemp = x;
-      while (xtemp < x + xlen) {
-        buildWall = xtemp === x || xtemp === x + xlen - 1 || ytemp === southwall || ytemp === insidenorthwall;
-        this.setCell(xtemp, ytemp, buildWall ? wall : floor);
-        xtemp++;
-      }
-      ytemp++;
-    }
-  }
-  if (dir === 2) {
-    ytemp = y;
-    westwall = Math.round(x - xlen / 2);
-    eastwall = Math.round(x + (xlen + 1) / 2);
-    insideeastwall = Math.round(x + (xlen - 1) / 2);
-    while (ytemp < y + ylen) {
-      if (ytemp < 0 || ytemp >= this.ysize) {
-        return false;
-      }
-      xtemp = westwall;
-      while (xtemp < eastwall) {
-        if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-          return false;
-        }
-        xtemp++;
-      }
-      ytemp++;
-      ytemp = y;
-      this.dungeonFeatures.push(new Feature("sroom", westwall, y, insideeastwall, y - ylen));
-      while (ytemp < y + ylen) {
-        xtemp = westwall;
-        while (xtemp < eastwall) {
-          buildWall = xtemp === westwall || xtemp === insideeastwall || ytemp === y || ytemp === y + ylen - 1;
-          this.setCell(xtemp, ytemp, buildWall ? wall : floor);
-          xtemp++;
-        }
-        ytemp++;
-      }
-    }
-  }
-  if (dir === 3) {
-    southwall = Math.round(y - ylen / 2);
-    northwall = Math.round(y + (ylen + 1) / 2);
-    insidenorthwall = Math.round(y + (ylen - 1) / 2);
-    ytemp = southwall;
-    while (ytemp < northwall) {
-      if (ytemp < 0 || ytemp >= this.ysize) {
-        return false;
-      }
-      xtemp = x;
-      while (xtemp > x - xlen) {
-        if (!this.inBounds(xtemp, ytemp) || !this.isUnused(xtemp, ytemp)) {
-          return false;
-        }
-        xtemp--;
-      }
-      ytemp++;
-    }
-    ytemp = southwall;
-    this.dungeonFeatures.push(new Feature("wroom", westwall, y, insideeastwall, y - ylen));
-    while (ytemp < northwall) {
-      xtemp = x;
-      while (xtemp > x - xlen) {
-        buildWall = xtemp === x || xtemp === x - xlen + 1 || ytemp === southwall || (ytemp = insidenorthwall);
-        this.setCell(xtemp, ytemp, buildWall ? wall : floor);
-        xtemp--;
-      }
-      ytemp++;
-    }
+  points = this.getRoomPoints(x, y, xlen, ylen, direction);
+  if (points.some(function(p) {
+    return p.x < 0 || p.y > this.ysize || p.x < 0 || p.y > this.xsize || self.getCellType(p.x, p.y) !== "unused";
+  })) {
+    return false;
   }
   return true;
 };
