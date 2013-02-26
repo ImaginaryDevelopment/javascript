@@ -12,8 +12,21 @@ phantom.onError = function(msg, trace) {
 };
 phantom.injectJs("chai.js");
 var assert=chai.assert;
+var bAssert = function(delegate,onError){
+    try{
+      delegate();
+    } catch(err){
+      if(onError){
+        onError(err);
+      } else {
+        console.error('<chai>'+err+'</chai>');
+      }
+      
+    }
+  };
 
 var page = require('webpage').create();
+
 
 var hasJQuery = false;
 var jQueryUrl = 'http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js';
