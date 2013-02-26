@@ -11,6 +11,7 @@ var bNavigator ={config:
     injectJQueryOnEveryPage:true,
     logJQueryInjection:false,
     logPageJQueryVersion:false,
+    logEveryResourceReceived:false,
     attemptToLogAssertCaller:true}};
 
 
@@ -98,6 +99,7 @@ page.onUrlChanged = function(targetUrl) {
 page.onLoadFinished = onEveryPageFinished;
 
 var onEveryResourceReceived=function(response){
+  if(bNavigator.config.logEveryResourceReceived)
   console.log('resource:'+response.url+' stage:'+response.stage);
  var protocol= response.url.substr(0,7);
     if (response.stage === "end" &&
