@@ -10,7 +10,8 @@ var bNavigator ={config:
     logOnLoadFinished:false,
     injectJQueryOnEveryPage:true,
     logJQueryInjection:false,
-    logPageJQueryVersion:false}};
+    logPageJQueryVersion:false,
+    attemptToLogAssertCaller:true}};
 
 
 phantom.onError = function(msg, trace) {
@@ -29,22 +30,41 @@ phantom.onError = function(msg, trace) {
 };
 phantom.injectJs("chai.js");
 var assert=chai.assert;
-var bAssert = function(delegate,onError){
-    try{
-
-      delegate();
-    } catch(err){
-      //chai delegate failed
-      if(onError){
-       
-        onError(err);
+var bAssert = function(delegate,onError,onSuccess){
+  success=false;
+  try{
+    delegate();
+    success=true;
+  } catch(err){
+    
+    //chai delegate failed
+    if(onError){
+     
+      onError(err);
+    } else {
+      
+      
+      if(bNavigator.config.attemptToLogAssertCaller){
+      var callerNameMatch=bAssert.caller.toString().match(/function ([^\(]+)/);
+        if(callerNameMatch && callerNameMatch[1])
+        {
+          console.error('<chai>'+err+'<caller>'+callerNameMatch[1]+'</caller></chai>');
+        } else 
+          console.error('<chai>'+err+'<callerunknown /></chai>');  
+          //console.log('caller was '+ callerNameMatch[1]);      
+          
       } else {
-       
         console.error('<chai>'+err+'</chai>');
       }
       
     }
-  };
+    
+  } //end catch
+  if(success===true && onSuccess)
+  {
+     onSuccess();
+  }
+};
 
 var page = require('webpage').create();
 
