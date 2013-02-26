@@ -1,4 +1,21 @@
+//configuration variables for on the fly- on/off
+var bNavigator ={config:
+  {logOnError:true,
+    logPageConsole:true,
+    logPageAlerts:true,
+    logMulticastResourceRecieved:false,
+    logPostRequests:false,
+    logMulticastResourceRecievedEnd:false,
+    logMulticastLoadFinished:false,
+    logOnLoadFinished:false,
+    injectJQueryOnEveryPage:true,
+    logJQueryInjection:false,
+    logPageJQueryVersion:false}};
+
+
 phantom.onError = function(msg, trace) {
+  if(!logOnError)
+    return;
   var msgStack = ['PHANTOM ERROR: ' + msg];
   if(trace) {
     msgStack.push('TRACE:');
@@ -14,11 +31,15 @@ phantom.injectJs("chai.js");
 var assert=chai.assert;
 var bAssert = function(delegate,onError){
     try{
+
       delegate();
     } catch(err){
+      //chai delegate failed
       if(onError){
+       
         onError(err);
       } else {
+       
         console.error('<chai>'+err+'</chai>');
       }
       
@@ -33,20 +54,25 @@ var jQueryUrl = 'http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.j
 //phantom.injectJs(jQueryUrl) ;// async
 //page.settings.userAgent = 'SpecialAgent';
 page.onConsoleMessage = function(msg, line, source) {
+  if(!bNavigator.config.logPageConsole)
+    return;
   console.log('console> ' + msg);
 };
 page.onAlert = function(msg) {
+  if(!bNavigator.config.logPageAlerts)
+    return;
   console.log('alert!!> ' + msg);
 };
 page.onResourceRequested = function(request) {
-  if(request.method === 'POST') {
+  if(request.method === 'POST' && bNavigator.config.logPostRequests) {
     console.log('Request ' + JSON.stringify(request, undefined, 4));
   }
 
 };
 page.onResourceReceived = onEveryResourceReceived;
+
 page.onUrlChanged = function(targetUrl) {
-  console.log('navigating to ' + targetUrl);
+  console.log('<navigatingto>' + targetUrl+'</navigatingto>');
 };
 
 page.onLoadFinished = onEveryPageFinished;
@@ -66,21 +92,32 @@ var onEveryResourceReceived=function(response){
 };
 
 var onEveryPageFinished=function(status) {
-  console.log('finished loading a page:' + status);
+  if(bNavigator.config.logOnLoadFinished)
+    console.log('finished loading a page:' + status);
+  
   hasJQuery = page.evaluate(function() {
     return jQuery !== undefined;
   });
-  console.log('hasJQuery=' + hasJQuery);
-  if(!hasJQuery) {
-    console.log('injecting jQuery from ' + jQueryUrl);
-    var didInject = page.injectJs(jQueryUrl);
-    console.log('injection attempted');
-    console.log('injection returned:' + didInject);
+  if(bNavigator.config.logJQueryInjection)
+    console.log('hasJQuery=' + hasJQuery);
+  if(bNavigator.config.injectJQueryOnEveryPage){
+    if(!hasJQuery) {
+      if(bNavigator.config.logPageJQueryVersion)
+      console.log('injecting jQuery from ' + jQueryUrl);
+      var didInject = page.injectJs(jQueryUrl);
+      if(bNavigator.config.logPageJQueryVersion){
+        console.log('injection attempted');
+        console.log('injection returned:' + didInject);  
+      }
+      
+    }  
   }
-  var jQueryVersion = page.evaluate(function() {
-    return jQuery().jquery; 
-  });
-  console.log('jQuery is ' + jQueryVersion);
+  if(bNavigator.config.logPageJQueryVersion){
+    var jQueryVersion = page.evaluate(function() {
+      return jQuery().jquery; 
+    });
+    console.log('jQuery is ' + jQueryVersion);  
+  }
 };
 
 function waitFor(testFx, onReady, timeOutMillis) {
@@ -109,6 +146,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
 //holds next page load finished or resource recieved delegate (ajax expected)
 var nextDelegate;
 var multicastResourceRecieved=function(resourceDelegate){
+  if(bNavigator.config.logMulticastResourceRecieved)
   console.log('attempting multicastResourceRecieved');
   nextDelegate=resourceDelegate;
   page.onResourceReceived=function(response){
@@ -123,43 +161,53 @@ var multicastResourceRecieved=function(resourceDelegate){
   
 }
 var multicastResourceRecievedEnd=function(resourceDelegate){
-  console.log('attempting multicastResourceRecievedEnd');
+  if(bNavigator.config.logMulticastResourceRecievedEnd)
+    console.log('attempting multicastResourceRecievedEnd');
   multicastResourceRecieved(function(response){
     if(response.stage!="end"){
-      console.log('loopsing multicastResourceRecievedEnd');
+      if(bNavigator.config.logMulticastResourceRecievedEnd)
+        console.log('looping multicastResourceRecievedEnd');
       multicastResourceRecievedEnd(resourceDelegate);
     } else {
-      console.log('finishing multicastResourceRecievedEnd');
+      if(bNavigator.config.logMulticastResourceRecievedEnd)
+        console.log('finishing multicastResourceRecievedEnd');
       resourceDelegate(response);
     }
   });
 }
 var multicastLoadFinished=function(description,pageDelegate,resourceDelegate){
-  console.log('attempting multicastLoadFinished');
+  if(bNavigator.config.logMulticastLoadFinished)
+    console.log('attempting multicastLoadFinished');
   var myDelegate;
   if(pageDelegate){
-    console.log('setting page delegate:'+description);
+    if(bNavigator.config.logMulticastLoadFinished)
+      console.log('setting page delegate:'+description);
   myDelegate=nextDelegate=pageDelegate;  
 
 } else {
-  myDelegate=nextDelegate=resourceDelegate;
+    if(resourceDelegate && bNavigator.config.logMulticastLoadFinished)
+      console.log('setting resource delegate:'+description);
+    myDelegate=nextDelegate=resourceDelegate;
 
 }
   
   page.onLoadFinished = function(status) {
+    if(bNavigator.config.logOnLoadFinished)
     console.log('clearing next');
     nextDelegate=null;
     onEveryPageFinished(status);
     myDelegate(status);
-    
+    if(bNavigator.config.logOnLoadFinished)
      console.log('onLoadFinished:'+description+':checking next delegate');
     if(!nextDelegate && !resourceDelegate) { //there's no page load delegate or resource(ajax delegate)
+
       console.log('onLoadFinished:'+description+':no next delegate, closing');
       phantom.exit(0);
     } else {
+      if(bNavigator.config.logOnLoadFinished)
       console.log('onLoadFinished:'+description+':found a nextDelegate');
     }
-    };
+  };
     
      
   
