@@ -35,6 +35,7 @@ phantom.onError = function(msg, trace) {
 };
 phantom.injectJs("chai.js");
 var assert = chai.assert;
+var expect = chai.expect;
 var bAssert = function(delegate, onError, onSuccess) {
   success = false;
   try {
@@ -101,7 +102,7 @@ var onEveryResourceReceived = function(response) {
   if (bNavigator.config.logEveryResourceReceived) console.log('resource:' + response.url + ' stage:' + response.stage);
   var protocol = response.url.substr(0, 7);
   if (response.stage === "end" && ((protocol === "http://" && response.status >= 400) || (protocol === "file://" && !response.headers.length))) {
-    console.log("Failed", response.url);
+    console.error("Failed", response.url);
   }
   if (response[0] === 't') {
     console.log('Receive ' + JSON.stringify(response, undefined, 4));
@@ -160,7 +161,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
 
 //holds next page load finished or resource recieved delegate (ajax expected)
 var nextDelegate;
-var multicastResourceRecieved = function(description,resourceDelegate) {
+var multicastResourceRecieved = function(description, resourceDelegate) {
   if (bNavigator.config.logMulticastResourceRecieved) console.log('attempting multicastResourceRecieved');
   nextDelegate = resourceDelegate;
   page.onResourceReceived = function(response) {
@@ -174,32 +175,33 @@ var multicastResourceRecieved = function(description,resourceDelegate) {
   };
 
 }
-var activeTimeout={};
+var activeTimeout = {};
 
-  function fail(type,description){
-    //console.log('checking for fail on '+ description+ ' of type '+type);
-    if(activeTimeout[type] && activeTimeout[type]===description)
-    {
-      console.error('timeout hit for '+description);
-      phantom.exit(2);
-    } else {
-      //console.log('!fail');
-    }
-
+function fail(type, description) {
+  //console.log('checking for fail on '+ description+ ' of type '+type);
+  if (activeTimeout[type] && activeTimeout[type] === description) {
+    console.error('timeout hit for ' + description);
+    phantom.exit(2);
+  } else {
+    //console.log('!fail');
   }
-var multicastResourceRecievedEnd = function(description,resourceDelegate,timeout) {
-  var timeout = timeout || 3000; //1 second
-  if(timeout!==0){ //0 for no timeout or recursive call that shouldn't set a new timeout
-    activeTimeout.multicastResourceRecievedEnd=description;
+
+}
+var multicastResourceRecievedEnd = function(description, resourceDelegate, timeout) {
+  var timeout = timeout || 6000; //1 second
+  if (timeout !== 0) { //0 for no timeout or recursive call that shouldn't set a new timeout
+    activeTimeout.multicastResourceRecievedEnd = description;
     //console.log('description:'+description);  
-    setTimeout(function(){fail('multicastResourceRecievedEnd',description);},timeout);
+    setTimeout(function() {
+      fail('multicastResourceRecievedEnd', description);
+    }, timeout);
   }
-  
+
   if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('attempting multicastResourceRecievedEnd');
-  multicastResourceRecieved(description,function(response) {
+  multicastResourceRecieved(description, function(response) {
     if (response.stage != "end") {
       if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('looping multicastResourceRecievedEnd');
-      multicastResourceRecievedEnd(description,resourceDelegate,0); //do not set timeout again
+      multicastResourceRecievedEnd(description, resourceDelegate, 0); //do not set timeout again
     } else {
       if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('finishing multicastResourceRecievedEnd');
       delete activeTimeout.multicastResourceRecievedEnd;
@@ -207,12 +209,14 @@ var multicastResourceRecievedEnd = function(description,resourceDelegate,timeout
     }
   });
 }
-var multicastLoadFinished = function(description, pageDelegate, resourceDelegate,timeout) {
+var multicastLoadFinished = function(description, pageDelegate, resourceDelegate, timeout) {
   //console.log('description:'+description);
-  var timeout= timeout || 3000;
+  var timeout = timeout || 6000;
   //console.log('setting multicastLoadFinishedTimeout '+timeout);
-  activeTimeout.multicastLoadFinished=description;
-  setTimeout(function(){fail('multicastLoadFinished',description);},timeout);
+  activeTimeout.multicastLoadFinished = description;
+  setTimeout(function() {
+    fail('multicastLoadFinished', description);
+  }, timeout);
 
   if (bNavigator.config.logMulticastLoadFinished) console.log('attempting multicastLoadFinished');
   var myDelegate;
@@ -234,7 +238,6 @@ var multicastLoadFinished = function(description, pageDelegate, resourceDelegate
     myDelegate(status);
     if (bNavigator.config.logOnLoadFinished) console.log('onLoadFinished:' + description + ':checking next delegate');
     if (!nextDelegate && !resourceDelegate) { //there's no page load delegate or resource(ajax delegate)
-
       console.log('onLoadFinished:' + description + ':no next delegate, closing');
       phantom.exit(0);
     } else {
