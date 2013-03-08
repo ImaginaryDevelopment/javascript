@@ -169,7 +169,7 @@ var multicastResourceRecieved = function(description, resourceDelegate) {
     onEveryResourceReceived(response);
     resourceDelegate(response);
     if (!nextDelegate) {
-      console.log('onResourceReceived exit');
+      console.log('onResourceReceived exit:'+description);
       phantom.exit(0);
     }
   };
@@ -188,6 +188,7 @@ function fail(type, description) {
 
 }
 var multicastResourceRecievedEnd = function(description, resourceDelegate, timeout) {
+  if(typeof description !=='string') {console.log('Description was '+typeof(description));console.log('description:'+description); phantom.exit(4);}
   var timeout = timeout || 6000; //1 second
   if (timeout !== 0) { //0 for no timeout or recursive call that shouldn't set a new timeout
     activeTimeout.multicastResourceRecievedEnd = description;
@@ -197,13 +198,13 @@ var multicastResourceRecievedEnd = function(description, resourceDelegate, timeo
     }, timeout);
   }
 
-  if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('attempting multicastResourceRecievedEnd');
+  if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('attempting multicastResourceRecievedEnd:'+description);
   multicastResourceRecieved(description, function(response) {
     if (response.stage != "end") {
-      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('looping multicastResourceRecievedEnd');
+      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('looping multicastResourceRecievedEnd:'+description);
       multicastResourceRecievedEnd(description, resourceDelegate, 0); //do not set timeout again
     } else {
-      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('finishing multicastResourceRecievedEnd');
+      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('finishing multicastResourceRecievedEnd:'+description);
       delete activeTimeout.multicastResourceRecievedEnd;
       resourceDelegate(response);
     }
@@ -224,10 +225,9 @@ var multicastLoadFinished = function(description, pageDelegate, resourceDelegate
     if (bNavigator.config.logMulticastLoadFinished) console.log('setting page delegate:' + description);
     myDelegate = nextDelegate = pageDelegate;
 
-  } else {
+  } else if(resourceDelegate) {
     if (resourceDelegate && bNavigator.config.logMulticastLoadFinished) console.log('setting resource delegate:' + description);
     myDelegate = nextDelegate = resourceDelegate;
-
   }
 
   page.onLoadFinished = function(status) {
