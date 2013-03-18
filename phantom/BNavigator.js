@@ -71,7 +71,8 @@ var bAssert = function(delegate, onError, onSuccess) {
 
 var page = require('webpage').create();
 
-
+//https://code.google.com/p/phantomjs/issues/detail?id=185
+var urlStatusDict={};
 var hasJQuery = false;
 var jQueryUrl = 'http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js';
 //phantom.injectJs(jQueryUrl) ;// async
@@ -90,15 +91,18 @@ page.onResourceRequested = function(request) {
   }
 
 };
-page.onResourceReceived = onEveryResourceReceived;
+
 
 page.onUrlChanged = function(targetUrl) {
   console.log('<navigatingto>' + targetUrl + '</navigatingto>');
 };
 
-page.onLoadFinished = onEveryPageFinished;
+
 
 var onEveryResourceReceived = function(response) {
+  
+  urlStatusDict[response.url]=response.status;
+  //console.log('setting urlStatus:'+response.url+':'+response.status);
   if (bNavigator.config.logEveryResourceReceived) console.log('resource:' + response.url + ' stage:' + response.stage);
   var protocol = response.url.substr(0, 7);
   if (response.stage === "end" && ((protocol === "http://" && response.status >= 400) || (protocol === "file://" && !response.headers.length))) {
@@ -109,10 +113,15 @@ var onEveryResourceReceived = function(response) {
   }
 
 };
+page.onResourceReceived = onEveryResourceReceived;
 
 var onEveryPageFinished = function(status) {
-  if (bNavigator.config.logOnLoadFinished || status!=="success") 
-  console.log('finished loading a page:' + status);
+  if (bNavigator.config.logOnLoadFinished ){
+    console.log('finished loading a page:'+page.url);
+  }
+  if(urlStatusDict[page.url]!=200){
+    console.log('finished loading page:'+page.url+':status:'+urlStatusDict[page.url]);
+  }
 
   hasJQuery = page.evaluate(function() {
     return jQuery !== undefined;
@@ -136,7 +145,7 @@ var onEveryPageFinished = function(status) {
     console.log('jQuery is ' + jQueryVersion);
   }
 };
-
+page.onLoadFinished = onEveryPageFinished;
 function waitFor(testFx, onReady, timeOutMillis, timeoutMessage) {
   var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
     start = new Date().getTime(),
