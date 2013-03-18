@@ -111,7 +111,8 @@ var onEveryResourceReceived = function(response) {
 };
 
 var onEveryPageFinished = function(status) {
-  if (bNavigator.config.logOnLoadFinished) console.log('finished loading a page:' + status);
+  if (bNavigator.config.logOnLoadFinished || status!=="success") 
+  console.log('finished loading a page:' + status);
 
   hasJQuery = page.evaluate(function() {
     return jQuery !== undefined;
@@ -136,7 +137,7 @@ var onEveryPageFinished = function(status) {
   }
 };
 
-function waitFor(testFx, onReady, timeOutMillis) {
+function waitFor(testFx, onReady, timeOutMillis, timeoutMessage) {
   var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
     start = new Date().getTime(),
     condition = false,
@@ -146,8 +147,12 @@ function waitFor(testFx, onReady, timeOutMillis) {
         condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
       } else {
         if (!condition) {
+          if (timeoutMessage) {
+            console.error(timeoutMessage);
+          } else {
+            console.log("'waitFor()' timeout");
+          }
           // If condition still not fulfilled (timeout but condition is 'false')
-          console.log("'waitFor()' timeout");
           phantom.exit(1);
         } else {
           // Condition fulfilled (timeout and/or condition is 'true')
@@ -169,7 +174,7 @@ var multicastResourceRecieved = function(description, resourceDelegate) {
     onEveryResourceReceived(response);
     resourceDelegate(response);
     if (!nextDelegate) {
-      console.log('onResourceReceived exit:'+description);
+      console.log('onResourceReceived exit:' + description);
       phantom.exit(0);
     }
   };
@@ -188,7 +193,11 @@ function fail(type, description) {
 
 }
 var multicastResourceRecievedEnd = function(description, resourceDelegate, timeout) {
-  if(typeof description !=='string') {console.log('Description was '+typeof(description));console.log('description:'+description); phantom.exit(4);}
+  if (typeof description !== 'string') {
+    console.log('Description was ' + typeof(description));
+    console.log('description:' + description);
+    phantom.exit(4);
+  }
   var timeout = timeout || 6000; //1 second
   if (timeout !== 0) { //0 for no timeout or recursive call that shouldn't set a new timeout
     activeTimeout.multicastResourceRecievedEnd = description;
@@ -198,13 +207,13 @@ var multicastResourceRecievedEnd = function(description, resourceDelegate, timeo
     }, timeout);
   }
 
-  if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('attempting multicastResourceRecievedEnd:'+description);
+  if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('attempting multicastResourceRecievedEnd:' + description);
   multicastResourceRecieved(description, function(response) {
     if (response.stage != "end") {
-      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('looping multicastResourceRecievedEnd:'+description);
+      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('looping multicastResourceRecievedEnd:' + description);
       multicastResourceRecievedEnd(description, resourceDelegate, 0); //do not set timeout again
     } else {
-      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('finishing multicastResourceRecievedEnd:'+description);
+      if (bNavigator.config.logMulticastResourceRecievedEnd) console.log('finishing multicastResourceRecievedEnd:' + description);
       delete activeTimeout.multicastResourceRecievedEnd;
       resourceDelegate(response);
     }
@@ -225,7 +234,7 @@ var multicastLoadFinished = function(description, pageDelegate, resourceDelegate
     if (bNavigator.config.logMulticastLoadFinished) console.log('setting page delegate:' + description);
     myDelegate = nextDelegate = pageDelegate;
 
-  } else if(resourceDelegate) {
+  } else if (resourceDelegate) {
     if (resourceDelegate && bNavigator.config.logMulticastLoadFinished) console.log('setting resource delegate:' + description);
     myDelegate = nextDelegate = resourceDelegate;
   }
