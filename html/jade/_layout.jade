@@ -1,0 +1,22 @@
+!!!5
+html(data-ngApp)
+  head
+    title #{title} - My Site
+    link(rel='stylesheet', href='style.css')
+    //include "style.css"
+  body
+    header
+      img(src="http://placehold.it/1280x102")
+    .container
+        block heading
+      .main-content
+        block content
+      .sidebar
+        span
+          a(href="/") Manage
+        span
+          a(href="/create") Create
+    footer
+      p Running on node with Express, Jade and Stylus
+    script(src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.1.1/angular.min.js")
+    block bottom

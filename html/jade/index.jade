@@ -1,15 +1,38 @@
-!!!5
-html
-  head
-    title #{title} - My Site
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    header
-      h1 My Site
-    .container
-      .main-content
-        block content
-      .sidebar
-        block sidebar
-    footer
-      p Running on node with Express, Jade and Stylus
+extend _search
+
+block heading
+  img(src="http://placehold.it/45x50")
+  h1 
+    |Bundled Payment Administration
+  a.button(href="/create") 
+    |Add New Payment Group
+block search
+  div.blueback.two-column
+    div.first
+      |Payment Group Name:
+      select(name="paymentgroup")
+        option(value="") All Payment Groups
+      |Payment Group PIN:
+      input(name="grouppin")
+    div.second
+      |Payer:
+      select(name="payer")
+        option(value="") All Payers
+      |Reimbursement Category:
+      select(name="reimbursement")
+        option(value="") All
+block groupactions
+  div
+    input(type="checkbox",name="selectall")
+    a(href="#export").button Export
+block grid
+  
+block sidebar
+  .widget
+    h1 Widget
+    p
+      | Sed auctor neque eu tellus rhoncus ut
+      | eleifend nibh porttitor. Ut in nulla enim.
+    p
+      | Vivamus hendrerit arcu sed erat molestie
+      | vehicula.

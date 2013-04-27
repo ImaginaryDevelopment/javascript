@@ -1,0 +1,14 @@
+extend _layout
+block content
+  block search
+  div.clear
+  block groupactions
+  //nav
+  a(href="#first").button <<
+  a(href="#prev").button <
+  span
+    Page {{pagenumber}}
+  a(href="#next").button >
+  a(href="#last").button >>
+  block grid
+  block nav

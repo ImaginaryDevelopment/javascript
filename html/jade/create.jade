@@ -1,0 +1,14 @@
+extend _layout  
+block heading
+block content
+  img(src="http://placehold.it/45x50")
+  p
+    |Create the group of providers who will receive a portion of bundled payments based by payer and reimbursement category, and set up the distribution rules for each bundled payment.  To set up a bundled payment group, you will need:
+  ul
+    li Payer and PIN number used to by the payer to identify payment is bundled.
+    li Reimbursement category or DRG covered.
+    li List of registered PaySpan providers (including each provider's TIN and NPI) who are part of the organization receiving the payment. Note: Providers must be registered on PaySpan to receive distribution.
+    li Distribution represented as a percentage of the bundled payment.
+  div
+    |Payment Group Name:
+    input(type="text")
