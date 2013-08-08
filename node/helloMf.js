@@ -15,7 +15,10 @@ function checkAuth(req, res, next) { //http://stackoverflow.com/a/8003291/57883
 }
 app.use(express.logger());
 app.use(express.bodyParser());
-app.use(express.cookieSession({secret:'mysecret',key:'mycookiekey'}));
+app.use(express.cookieParser());
+//app.use(express.session());
+app.use(express.cookieSession({ secret: 'hey' }));
+app.use(app.router);
 
 app.get('/', function(req, res){
 	var path= "..\\..\\publish.ang.htm";
