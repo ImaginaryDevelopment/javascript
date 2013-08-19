@@ -2,8 +2,16 @@
 //needs: npm install express
 var express = require('express'),
     app = express(),
-    fs=require('fs');
-    
+    fs=require('fs'),
+    http = require('http')
+    ;
+ var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,HEAD');
+    res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type");
+
+    next();
+}   
 function checkAuth(req, res, next) { //http://stackoverflow.com/a/8003291/57883
   console.log('checking auth!');
   if (!req.session.user_id) {
@@ -18,15 +26,65 @@ app.use(express.bodyParser());
 app.use(express.cookieParser());
 //app.use(express.session());
 app.use(express.cookieSession({ secret: 'hey' }));
+app.use(allowCrossDomain);
 app.use(app.router);
 
+app.options('*',function(req,res,next){
+	res.send(200);
+});
 app.get('/', function(req, res){
-	var path= "..\\..\\publish.ang.htm";
+	var path= "..\\publish.ang.htm";
 	fs.readFile(path,function(err,data){
 		res.type('html');
 		res.send(data);
 	});
 });
+var processUrlStatus=function(host,path,res){
+	console.log('yay processing url:'+host+'+'+path);
+	
+	var options = {
+		host: host,
+		path: path,
+		method:'GET',
+		headers: {host:host }
+	};
+
+	var req=http.request(options,function(response){
+		console.log(response.statusCode);
+		console.log(JSON.stringify(response.headers));
+		res.send(response.statusCode);
+		res.end();
+	});
+	req.end();
+};
+app.get('/urlstatus',function(req,res){
+	console.log('checking url with get');
+	
+	if(!req.query.host || !req.query.path){
+		console.log('no host or path');
+		res.send('no host or path in '+req.query);
+	} else {
+		processUrlStatus(req.query.host,req.query.path,res);
+	}
+});
+
+app.post('/urlstatus',function(req,res){
+	console.log('checking url!');
+	if(!req.body){
+		console.log('no body');
+		res.send('no body');
+	} else {
+		var post= req.body;
+		if(post.host && post.path){
+			processUrlStatus(post.host,post.path,res);
+		} else {
+			console.log('no host or path');
+			res.send('no host or path');
+		}
+	}
+});
+
+
 app.get('/my_secret_page', checkAuth, function (req, res) {
   res.send('if you are viewing this page it means you are logged in');
 });
