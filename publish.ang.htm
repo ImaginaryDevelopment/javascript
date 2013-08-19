@@ -127,7 +127,7 @@
     </div>
     <script>
    
-    var PublishCtrl=function($scope,$http){
+    var PublishCtrl=function($scope,$http,$timeout){
      
       $scope.displayCase= function(){
         if($scope.case){
@@ -187,13 +187,17 @@
               $scope[name]=stored;
             }
           }
+
           $scope.$watch(name,function(){
-            if($scope[name]){
+            $timeout(function(){ if($scope[name]){
               //console.log('setting:'+name);
               localStorage.setItem(name,$scope[name]);
             } else {
-              localStorage.clear(name);
-            }
+              console.log('removing setting '+name);
+
+              localStorage.removeItem(name);
+            }},500);
+           
           });
         }
       };
