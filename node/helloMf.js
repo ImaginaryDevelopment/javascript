@@ -34,6 +34,7 @@ app.options('*',function(req,res,next){
 	res.send(200);
 	res.end();
 });
+
 app.get('/', function(req, res){
 	var path= "..\\publish.ang.htm";
 	fs.readFile(path,function(err,data){
@@ -42,8 +43,9 @@ app.get('/', function(req, res){
 		res.end();
 	});
 });
+
 var processUrlStatus=function(host,path,res){
-	console.log('yay processing url:'+host+'+'+path);
+	console.log('processing url:'+host+'+'+path);
 	
 	var options = {
 		host: host,
@@ -53,13 +55,19 @@ var processUrlStatus=function(host,path,res){
 	};
 
 	var req=http.request(options,function(response){
-		console.log(response.statusCode);
-		console.log(JSON.stringify(response.headers));
+		console.log(response.statusCode + '-'+host+path);
+		//console.log(JSON.stringify(response.headers));
 		res.send(response.statusCode);
 		res.end();
 	}).on('error',function(e){
-		console.log('http.request error:'+JSON.stringify(e));
-		res.send('http.request error:'+JSON.stringify(e));
+		console.log('http.request error for '+host+path+' : '+JSON.stringify(e));
+		switch(e.code){
+			case 'ENOTFOUND':
+			res.send('Endpoint not found');
+			break;
+			default:
+			res.send(e.code);	
+		}
 		res.end();
 	});
 	req.end();
@@ -77,7 +85,6 @@ app.get('/urlstatus',function(req,res){
 });
 
 app.post('/urlstatus',function(req,res){
-	console.log('checking url!');
 	if(!req.body){
 		console.log('no body');
 		res.send('no body');

@@ -18,7 +18,15 @@
       .lightsoff .value{
         color: #FFFF00;
       }
-      
+      .error {
+        color: #8B0000;
+      }
+      .lightsoff .success{
+        color: #00FFFF;
+      }
+      .lightson .success{
+        color: #00008B;
+      }
       .invalid{
         color: #C0C0C0;
         cursor: text;
@@ -116,13 +124,37 @@
         
       </div>
       <div><h2>Service Tests</h2>
-        <ul>
-          <li>Wcf Potal - <a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></li>
-          <li>Registration Portal - <a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.Registration/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.Registration/WcfPortal.svc</span></a></li>
-          <li>Program Pricing - <a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc</span></a></li>
-          <li>Data Lookup (path depth issues!)- <a href="http://{{displaySandbox()}}/{{displayCase()}}/DataLookupService/DataLookupService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/DataLookupService/DataLookupService.svc</span></a> <span ng-bind-html-unsafe="getUrl('/DataLookupService/DataLookupService.svc')"></span></li>  
-          <li ng-init="subPath='/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc';">Document Printing - <a href="http://{{displaySandbox()}}/{{displayCase()}}{{subPath}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{subPath}}</span></a> <span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc')"></span></li>
-        <ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>status</th><th>link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Wcf Portal</td>
+              <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc')"></span></td>
+              <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></td>
+            </tr>
+            <tr><td>Registration Portal</td>
+            <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.Registration/WcfPortal.svc')"></span></td>
+            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.Registration/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.Registration/WcfPortal.svc</span></a></td>
+          </tr>
+          <tr>
+            <td>Program Pricing</td>
+            <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc')"></span></td>
+            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc</span></a></td>
+          </tr>
+          <tr><td>Data Lookup (path depth issues!)</td><td><span ng-bind-html-unsafe="getUrl('/DataLookupService/DataLookupService.svc')"></span></td>
+            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/DataLookupService/DataLookupService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/DataLookupService/DataLookupService.svc</span></a></td>
+          </tr>
+          <tr>
+            <td>Document Printing</td>
+            <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc')"></span>
+            </td>
+            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc</span></a></td>
+          </tr>
+        
       </div>
     </div>
     <script>
@@ -153,7 +185,7 @@
       $scope.deployUrl=function(){
         return '/LoanQuestNETDeploy/publish.htm';
       };
-      var ajaxResults={empty:'<div>No data</div>'};
+      var ajaxResults={empty:'<span>No data</span>'};
      
       $scope.getUrl= function(subPath){
         //return '<div> test success?perhaps</div>';
@@ -163,20 +195,20 @@
           
           $http.get("http://localhost:81/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath)
             .success(function(data,status,headers,config){
-              console.log('ajax success');
-              ajaxResults[subPath]='<div>'+status+'</div>';
+              console.log('ajax success:'+JSON.stringify(data));
+              ajaxResults[subPath]='<span class="success">'+data+'</span>';
             }).error(function(data,status,headers,config){
               console.log('ajax failure');
-              ajaxResults[subPath]='<div>error:'+status+' '+subPath+'</div>';
+              ajaxResults[subPath]='<span class="error">error:'+status+' '+subPath+'</span>';
           });
   
         }
         return ajaxResults[subPath];
       };
 
-      $scope.$watch('case',Cowboy.throttle( 350,  function(){
-        ajaxResults={empty:'<div>Loading...?</div>'};
-      }));
+      $scope.$watch('[sandbox,case]',Cowboy.throttle( 350,  function(){
+        ajaxResults={empty:'<span class="case">Loading...?</span>'};
+      }),true);
       
       var setLocal=function(name){
         if(window.localStorage){
