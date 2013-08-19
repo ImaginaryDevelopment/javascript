@@ -16,6 +16,7 @@ function checkAuth(req, res, next) { //http://stackoverflow.com/a/8003291/57883
   console.log('checking auth!');
   if (!req.session.user_id) {
     res.send('You are not authorized to view this page');
+    res.end();
   } else {
   	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
@@ -31,12 +32,14 @@ app.use(app.router);
 
 app.options('*',function(req,res,next){
 	res.send(200);
+	res.end();
 });
 app.get('/', function(req, res){
 	var path= "..\\publish.ang.htm";
 	fs.readFile(path,function(err,data){
 		res.type('html');
 		res.send(data);
+		res.end();
 	});
 });
 var processUrlStatus=function(host,path,res){
@@ -54,6 +57,10 @@ var processUrlStatus=function(host,path,res){
 		console.log(JSON.stringify(response.headers));
 		res.send(response.statusCode);
 		res.end();
+	}).on('error',function(e){
+		console.log('http.request error:'+JSON.stringify(e));
+		res.send('http.request error:'+JSON.stringify(e));
+		res.end();
 	});
 	req.end();
 };
@@ -63,6 +70,7 @@ app.get('/urlstatus',function(req,res){
 	if(!req.query.host || !req.query.path){
 		console.log('no host or path');
 		res.send('no host or path in '+req.query);
+		res.end();
 	} else {
 		processUrlStatus(req.query.host,req.query.path,res);
 	}
@@ -73,6 +81,7 @@ app.post('/urlstatus',function(req,res){
 	if(!req.body){
 		console.log('no body');
 		res.send('no body');
+		res.end();
 	} else {
 		var post= req.body;
 		if(post.host && post.path){
@@ -80,6 +89,7 @@ app.post('/urlstatus',function(req,res){
 		} else {
 			console.log('no host or path');
 			res.send('no host or path');
+			res.end();
 		}
 	}
 });
@@ -87,15 +97,18 @@ app.post('/urlstatus',function(req,res){
 
 app.get('/my_secret_page', checkAuth, function (req, res) {
   res.send('if you are viewing this page it means you are logged in');
+  res.end();
 });
 app.post('/login', function (req, res) {
 	if(!req.body){
 		res.send('no body');
+		res.end();
 	} else {
 		var post = req.body;
   		if (post.user == 'john' && post.password == 'johnspassword') {
     		req.session.user_id = post.user;
     		res.redirect('/my_secret_page');
+    		res.end();
   		} else {
     		res.send('Bad user/pass');
   		}		
@@ -107,6 +120,7 @@ app.get('/login',function(req,res){
 	fs.readFile(path,function(err,data){
 		res.type('html');
 		res.send(data);
+		res.end();
 	});
 });
 
