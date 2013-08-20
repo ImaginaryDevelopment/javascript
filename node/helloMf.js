@@ -3,7 +3,8 @@
 var express = require('express'),
     app = express(),
     fs=require('fs'),
-    http = require('http')
+    http = require('http'),
+    url = require('url')
     ;
  var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -34,7 +35,16 @@ app.options('*',function(req,res,next){
 	res.send(200);
 	res.end();
 });
-
+app.get('*.js',function(req,res){
+	var reqPath= url.parse(req.path);
+	var path = ".."+req.path;
+	console.log('getting javascript:'+path);
+	fs.readFile(path,function(err,data){
+		res.type('html');
+		res.send(data);
+		res.end();
+	});
+});
 app.get('/', function(req, res){
 	var path= "..\\publish.ang.htm";
 	fs.readFile(path,function(err,data){
