@@ -12,7 +12,7 @@ var express = require('express'),
     res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-Type");
 
     next();
-}   
+};   
 function checkAuth(req, res, next) { //http://stackoverflow.com/a/8003291/57883
   console.log('checking auth!');
   if (!req.session.user_id) {
