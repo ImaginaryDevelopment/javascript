@@ -4,7 +4,9 @@ var express = require('express'),
     app = express(),
     fs=require('fs'),
     http = require('http'),
-    url = require('url')
+    url = require('url'),
+    auth = require('./auth.js'),
+    httpstatus = require('./httpstatus.js')
     ;
  var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -13,16 +15,7 @@ var express = require('express'),
 
     next();
 };   
-function checkAuth(req, res, next) { //http://stackoverflow.com/a/8003291/57883
-  console.log('checking auth!');
-  if (!req.session.user_id) {
-    res.send('You are not authorized to view this page');
-    res.end();
-  } else {
-  	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    next();
-  }
-}
+
 app.use(express.logger());
 app.use(express.bodyParser());
 app.use(express.cookieParser());
@@ -54,34 +47,6 @@ app.get('/', function(req, res){
 	});
 });
 
-var processUrlStatus=function(host,path,res){
-	console.log('processing url:'+host+'+'+path);
-	
-	var options = {
-		host: host,
-		path: path,
-		method:'GET',
-		headers: {host:host }
-	};
-
-	var req=http.request(options,function(response){
-		console.log(response.statusCode + '-'+host+path);
-		//console.log(JSON.stringify(response.headers));
-		res.send(response.statusCode);
-		res.end();
-	}).on('error',function(e){
-		console.log('http.request error for '+host+path+' : '+JSON.stringify(e));
-		switch(e.code){
-			case 'ENOTFOUND':
-			res.send('Endpoint not found');
-			break;
-			default:
-			res.send(e.code);	
-		}
-		res.end();
-	});
-	req.end();
-};
 app.get('*.config',function(req,res){
 	if(!req.query.host || !req.query.path){
 		console.log('no host or path');
@@ -111,7 +76,7 @@ app.get('/urlstatus',function(req,res){
 		res.send('no host or path in '+req.query);
 		res.end();
 	} else {
-		processUrlStatus(req.query.host,req.query.path,res);
+		httpstatus.processUrlStatus(req.query.host,req.query.path,res);
 	}
 });
 
@@ -123,7 +88,7 @@ app.post('/urlstatus',function(req,res){
 	} else {
 		var post= req.body;
 		if(post.host && post.path){
-			processUrlStatus(post.host,post.path,res);
+			httpstatus.processUrlStatus(post.host,post.path,res);
 		} else {
 			console.log('no host or path');
 			res.send('no host or path');
@@ -132,35 +97,7 @@ app.post('/urlstatus',function(req,res){
 	}
 });
 
-app.get('/my_secret_page', checkAuth, function (req, res) {
-  res.send('if you are viewing this page it means you are logged in');
-  res.end();
-});
-
-app.post('/login', function (req, res) {
-	if(!req.body){
-		res.send('no body');
-		res.end();
-	} else {
-		var post = req.body;
-  		if (post.user == 'john' && post.password == 'johnspassword') {
-    		req.session.user_id = post.user;
-    		res.redirect('/my_secret_page');
-    		res.end();
-  		} else {
-    		res.send('Bad user/pass');
-  		}		
-	}
-});
-
-app.get('/login',function(req,res){
-	var path= "..\\html\\login.htm";
-	fs.readFile(path,function(err,data){
-		res.type('html');
-		res.send(data);
-		res.end();
-	});
-});
+auth.authRoutes(app,fs);
 
 if(!process.env){
 	process.env={};
