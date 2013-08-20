@@ -127,21 +127,38 @@
         <table>
           <thead>
             <tr>
-              <th>Name</th><th>status</th><th>link</th>
+              <th>Name</th><th>status</th><th>config</th><th>link</th>
             </tr>
           </thead>
           <tbody>
           <tr ng-repeat="svc in services">
-            <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base=c$\MFWebContent\Cases\{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a><span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
-            <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span>
-            </td>
+            <td>{{svc.name}}<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
+            <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
+            <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base=c$\MFWebContent\Cases\{{case}}&path={{svc.dir}}Web.config">web.config</a>
+              <span ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base=c$\\MFWebContent\\Cases\\'+case+'&path='+svc.dir+'Web.config',svc);">load json</span> </td>
             <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
           </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>name</th><th>connection strings</th><th>client strings</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="svc in services">
+            <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base=c$\\MFWebContent\\Cases\\'+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
+            <td>{{svc.parsed.configuration.connectionStrings}}</td>
+          </tr>
+        </tbody>
+      </table>
       </div>
     </div>
     <script>
    
     var PublishCtrl=function($scope,$http,$timeout){
+      window.publishCtrl=$scope;
       $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
       var Service = function(name,path,svc,notes){
         this.name=name;
@@ -150,16 +167,13 @@
         this.notes=notes;
         this.dir="\\"+path.replace("/","\\")+"\\";
         this.url="/"+path.replace("\\","/")+"/"+svc;
-        console.log(this.url);
       };
       $scope.services = [
         new Service("Wcf Portal","Mortgageflex.Services.Host.LoanQuest","WcfPortal.svc"),
         new Service("Registration Portal","Mortgageflex.Services.Host.Registration","WcfPortal.svc"),
         new Service("Program Pricing","Mortgageflex.Services.Host.ProgramPricing","ProgramPricingService.svc"),
-        //Data Lookup (!)</td><td><span ng-bind-html-unsafe="getUrl('/DataLookupService/DataLookupService.svc')"></span></td>
         new Service("Data Lookup","DataLookupService","DataLookupService.svc","path depth issues"),
         new Service("DocumentPrintingService","Mortgageflex.Services.Host.PrintingService","DocumentPrintingService.svc"),
-
         ];
       $scope.displayCase= function(){
         if($scope.case){
@@ -186,17 +200,27 @@
         return '/LoanQuestNETDeploy/publish.htm';
       };
       var ajaxResults={empty:'<span>No data</span>'};
-     
+      $scope.getJson= function(uri,svc){
+        return $http.get(uri)
+            .success(function(data,status,headers,config){
+              console.log('ajax success:'+uri);
+              window.parsed= data;
+              svc.parsed=data;
+            }).error(function(data,status,headers,config){
+              console.log('ajax failure');
+              return {error:status};
+          });
+      }
       $scope.getUrl= function(subPath){
         //return '<div> test success?perhaps</div>';
         if($scope.validcase() && $scope.sandbox && !ajaxResults[subPath])
         {
           ajaxResults[subPath]=ajaxResults.empty;
           var targetUrl="http://"+$scope.nodeHost+"/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
-          console.log("getting status of "+targetUrl);
+          //console.log("getting status of "+targetUrl);
           $http.get(targetUrl)
             .success(function(data,status,headers,config){
-              console.log('ajax success:'+JSON.stringify(data));
+              console.log('ajax success:'+JSON.stringify(data)+":"+targetUrl);
               ajaxResults[subPath]='<span class="success">'+data+'</span>';
             }).error(function(data,status,headers,config){
               console.log('ajax failure');
@@ -223,11 +247,8 @@
 
           $scope.$watch(name,function(){
             $timeout(function(){ if($scope[name]){
-              //console.log('setting:'+name);
               localStorage.setItem(name,$scope[name]);
             } else {
-              console.log('removing setting '+name);
-
               localStorage.removeItem(name);
             }},500);
            

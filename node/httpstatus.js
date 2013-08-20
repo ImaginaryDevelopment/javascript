@@ -1,6 +1,36 @@
 //httpStatus.js
+var http= require('http');
 module.exports = {
-	processUrlStatus: function(host,path,res){
+		routes: function(app){
+			app.get('/urlstatus',function(req,res){
+				console.log('checking url with get');
+				processUrlStatus(req.query.host,req.query.path,res);
+			});
+
+			app.post('/urlstatus',function(req,res){
+				if(!req.body){
+					console.log('no body');
+					res.send('no body');
+					res.end();
+				} else {
+					var post= req.body;
+					processUrlStatus(post.host,post.path,res);
+				}
+			});
+	}
+};
+var processUrlStatus=function(host,path,res){
+	if(!host)
+	{
+		res.send('no host');
+		res.end();
+		return;
+	}
+	if(!path){
+		res.send('no path');
+		res.end();
+		return;
+	}
 	console.log('processing url:'+host+'+'+path);
 	
 	var options = {
@@ -27,5 +57,4 @@ module.exports = {
 		res.end();
 	});
 	req.end();
-}
 };

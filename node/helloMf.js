@@ -3,10 +3,11 @@
 var express = require('express'),
     app = express(),
     fs=require('fs'),
-    http = require('http'),
+   //http = require('http'),
     url = require('url'),
     auth = require('./auth.js'),
-    httpstatus = require('./httpstatus.js')
+    httpstatus = require('./httpstatus.js'),
+    xml2js = require('xml2js')
     ;
  var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -46,8 +47,22 @@ app.get('/', function(req, res){
 		res.end();
 	});
 });
+app.get('/parsed.config',function(req,res){
+	//take an xml file and return json
+	//https://github.com/Leonidas-from-XIV/node-xml2js
+	console.log('getting parsed config!');
+	var path="\\\\"+req.query.host+"\\"+req.query.base+"\\"+req.query.path;
+	
+	fs.readFile(path,function(err,data){
+		var parser = new xml2js.Parser();
+		parser.parseString(data,function(err,result){
+			res.send(result);
+			res.end();
+		});
+	});
 
-app.get('*.config',function(req,res){
+});
+app.get('/web.config',function(req,res){
 	if(!req.query.host || !req.query.path){
 		console.log('no host or path');
 		res.send('no host or path in '+req.query);
@@ -68,34 +83,7 @@ app.get('*.config',function(req,res){
 		});
 	}
 });
-app.get('/urlstatus',function(req,res){
-	console.log('checking url with get');
-	
-	if(!req.query.host || !req.query.path){
-		console.log('no host or path');
-		res.send('no host or path in '+req.query);
-		res.end();
-	} else {
-		httpstatus.processUrlStatus(req.query.host,req.query.path,res);
-	}
-});
-
-app.post('/urlstatus',function(req,res){
-	if(!req.body){
-		console.log('no body');
-		res.send('no body');
-		res.end();
-	} else {
-		var post= req.body;
-		if(post.host && post.path){
-			httpstatus.processUrlStatus(post.host,post.path,res);
-		} else {
-			console.log('no host or path');
-			res.send('no host or path');
-			res.end();
-		}
-	}
-});
+httpstatus.routes(app);
 
 auth.authRoutes(app,fs);
 

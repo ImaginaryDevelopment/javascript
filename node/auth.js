@@ -1,14 +1,5 @@
 // auth.js
-var checkAuth=function(req, res, next) { //http://stackoverflow.com/a/8003291/57883
-	  console.log('checking auth!');
-	  if (!req.session.user_id) {
-	    res.send('You are not authorized to view this page');
-	    res.end();
-	  } else {
-	  	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-	    next();
-	  }
-	};
+
 
 module.exports = {
 	
@@ -46,3 +37,13 @@ module.exports = {
 
 };
 
+var checkAuth=function(req, res, next) { //http://stackoverflow.com/a/8003291/57883
+	  console.log('checking auth!');
+	  if (!req.session.user_id) {
+	    res.send('You are not authorized to view this page');
+	    res.end();
+	  } else {
+	  	res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+	    next();
+	  }
+	};
