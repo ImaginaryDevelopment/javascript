@@ -82,6 +82,27 @@ var processUrlStatus=function(host,path,res){
 	});
 	req.end();
 };
+app.get('*.config',function(req,res){
+	if(!req.query.host || !req.query.path){
+		console.log('no host or path');
+		res.send('no host or path in '+req.query);
+		res.end();
+	} if(!req.query.base){
+		console.log('no server path base');
+		res.send('no server path base '+req.query);
+		res.end();
+	} else {
+		console.log('fetching config file');
+		// host should be sandbox, base should be path to main directory (C$\77494\ for instance), path should be path from there to config file
+		var path="\\\\"+req.query.host+"\\"+req.query.base+"\\"+req.query.path;
+		console.log('fetching config from '+path);
+			fs.readFile(path,function(err,data){
+				res.type('xml');
+				res.send(data);
+				res.end();
+		});
+	}
+});
 app.get('/urlstatus',function(req,res){
 	console.log('checking url with get');
 	
@@ -111,11 +132,11 @@ app.post('/urlstatus',function(req,res){
 	}
 });
 
-
 app.get('/my_secret_page', checkAuth, function (req, res) {
   res.send('if you are viewing this page it means you are logged in');
   res.end();
 });
+
 app.post('/login', function (req, res) {
 	if(!req.body){
 		res.send('no body');
@@ -130,8 +151,8 @@ app.post('/login', function (req, res) {
     		res.send('Bad user/pass');
   		}		
 	}
-  
 });
+
 app.get('/login',function(req,res){
 	var path= "..\\html\\login.htm";
 	fs.readFile(path,function(err,data){
@@ -140,7 +161,6 @@ app.get('/login',function(req,res){
 		res.end();
 	});
 });
-
 
 if(!process.env){
 	process.env={};

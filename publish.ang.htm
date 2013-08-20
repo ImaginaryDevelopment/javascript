@@ -132,27 +132,27 @@
           </thead>
           <tbody>
             <tr>
-              <td>Wcf Portal</td>
+              <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base=c$\MFWebContent\Cases\{{case}}&path=Mortgageflex.Services.Host.LoanQuest\Web.config">Wcf Portal</a></td>
               <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc')"></span></td>
-              <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></td>
+              <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></td>
             </tr>
             <tr><td>Registration Portal</td>
             <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.Registration/WcfPortal.svc')"></span></td>
-            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.Registration/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.Registration/WcfPortal.svc</span></a></td>
+            <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.Registration/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.Registration/WcfPortal.svc</span></a></td>
           </tr>
           <tr>
             <td>Program Pricing</td>
             <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc')"></span></td>
-            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc</span></a></td>
+            <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.ProgramPricing/ProgramPricingService.svc</span></a></td>
           </tr>
           <tr><td>Data Lookup (path depth issues!)</td><td><span ng-bind-html-unsafe="getUrl('/DataLookupService/DataLookupService.svc')"></span></td>
-            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/DataLookupService/DataLookupService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/DataLookupService/DataLookupService.svc</span></a></td>
+            <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/DataLookupService/DataLookupService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/DataLookupService/DataLookupService.svc</span></a></td>
           </tr>
           <tr>
-            <td>Document Printing</td>
+            <td><a href="#">Document Printing</a></td>
             <td><span ng-bind-html-unsafe="getUrl('/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc')"></span>
             </td>
-            <td><a href="http://{{displaySandbox()}}/{{displayCase()}}/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc</span></a></td>
+            <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.PrintingService/DocumentPrintingService.svc</span></a></td>
           </tr>
         
       </div>
@@ -160,7 +160,8 @@
     <script>
    
     var PublishCtrl=function($scope,$http,$timeout){
-     
+      $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
+
       $scope.displayCase= function(){
         if($scope.case){
           return $scope.case;
@@ -193,13 +194,13 @@
         {
           ajaxResults[subPath]=ajaxResults.empty;
           
-          $http.get("http://localhost:81/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath)
+          $http.get("http://"+$scope.nodeHost+"/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath)
             .success(function(data,status,headers,config){
               console.log('ajax success:'+JSON.stringify(data));
               ajaxResults[subPath]='<span class="success">'+data+'</span>';
             }).error(function(data,status,headers,config){
               console.log('ajax failure');
-              ajaxResults[subPath]='<span class="error">error:'+status+' '+subPath+'</span>';
+              ajaxResults[subPath]='<span class="error" title="'+subPath+'"">error:'+status+' </span>';
           });
   
         }
