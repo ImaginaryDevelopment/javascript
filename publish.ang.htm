@@ -140,7 +140,7 @@
           </tr>
         </tbody>
       </table>
-      <table>
+      <table data-role="parsed config viewer">
         <thead>
           <tr>
             <th>name</th><th>connection strings</th><th>client strings</th>
@@ -149,24 +149,64 @@
         <tbody>
           <tr ng-repeat="svc in services">
             <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base=c$\\MFWebContent\\Cases\\'+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
-            <td>{{svc.parsed.configuration.connectionStrings}}</td>
+            <td>{{svc.getDefaultDatabase()}} {{svc.getConnectionString()}}</td>
           </tr>
         </tbody>
       </table>
       </div>
     </div>
     <script>
-   
+    //https://github.com/knockout/knockout/blob/master/src/utils.js
+    if(!Array.prototype.arrayFirst){
+      Array.prototype.arrayFirst=function (predicate, predicateOwner) {
+            var array= this || [];
+            for (var i = 0, j = array.length; i < j; i++)
+                if (predicate.call(predicateOwner, array[i]))
+                    return array[i];
+            return null;
+        };
+    }
+    if(!Array.prototype.arrayMap){
+      Array.prototype.arrayMap=function (mapping) {
+            var array = this || [];
+            var result = [];
+            for (var i = 0, j = array.length; i < j; i++)
+                result.push(mapping(array[i]));
+            return result;
+        };
+    }
     var PublishCtrl=function($scope,$http,$timeout){
       window.publishCtrl=$scope;
       $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
       var Service = function(name,path,svc,notes){
+        var self=this;
         this.name=name;
         this.path=path;
         this.svc=svc;
         this.notes=notes;
         this.dir="\\"+path.replace("/","\\")+"\\";
         this.url="/"+path.replace("\\","/")+"/"+svc;
+        this.getDefaultDatabase= function(){
+          if(!self.parsed)
+            return;
+          if(!self.parsed.configuration)
+            return;
+          if(!self.parsed.configuration.dataConfiguration)
+            return;
+          if(!self.parsed.configuration.dataConfiguration[0])
+            return;
+          return self.parsed.configuration.dataConfiguration[0].$.defaultDatabase;
+        }
+        this.getConnectionString=function(){
+          var dd= self.getDefaultDatabase();
+          if(!dd)
+            return;
+          var connectionStringsJs= self.parsed.configuration.connectionStrings[0].add;
+          if(!connectionStringsJs)
+            return;
+          var connectionStrings= connectionStringsJs.arrayMap(function(e){return e.$;});
+          return connectionStrings.arrayFirst(function(e){return e.name && e.name==dd;});
+        }
       };
       $scope.services = [
         new Service("Wcf Portal","Mortgageflex.Services.Host.LoanQuest","WcfPortal.svc"),
