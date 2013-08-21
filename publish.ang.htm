@@ -41,7 +41,7 @@
       }
     </style>
   </head>
-  <body ng-app ng-controller="PublishCtrl" ng-class="{true:'lightsoff',false:'lightson'}[lightsoff]">
+  <body ng-app ng-controller="PublishCtrl" ng-class="{true:'lightson',false:'lightsoff'}[lights]">
     <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Diagnostics'];" data-role="tab menu">
       <li ng-repeat="ts in tabs"><span ng-click="$parent.tab=($index+1)" ng-class="{true:'clickable',false:''}[$parent.tab!=$index+1]">{{ts}}</span></li>
     </ul>
@@ -62,8 +62,8 @@
         </div>
           <label>dev</label>
           <input ng-model="dev" placeholder="bdimperio" />
-          <label>Lights off?</label>
-          <input ng-model="lightsoff" type="checkbox" />
+          <label>Lights on?</label>
+          <input ng-checked="lights" ng-model="lights" type="checkbox" />
       </div>
       <div data-role="setup" ng-show="tab ==2">
         <div> <h2>IIS setup</h2>
@@ -326,7 +326,7 @@
       setLocal('dev');
       setLocal('codebase');
       setLocal('isStandard');
-      setLocal('lightsoff');
+      setLocal('lights',false);
       setLocal('machineBasePath','c$\\MFWebContent\\Cases\\');
     };
     </script>
