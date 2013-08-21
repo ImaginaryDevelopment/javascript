@@ -6,6 +6,13 @@
         background-color: black;
         color:white;
       }
+      .clickable{
+        color: #00E;
+        cursor:pointer;
+      }
+      .clickable:hover{
+        text-decoration: underline;
+      }
       .case{
         color: #00FF00;
       }
@@ -35,124 +42,140 @@
     </style>
   </head>
   <body ng-app ng-controller="PublishCtrl" ng-class="{true:'lightsoff',false:'lightson'}[lightsoff]">
-    <div >
-
-      <label>sandbox</label>
-      <input ng-model="sandbox" placeholder="sandbox"/>
-      <label>CodeBase</label>
-      <input ng-model="codebase" placeholder="Test Release 13.1.0102.00"/>
-      <label>customer</label>
-      <input ng-model="customer" placeholder="Homestreet"/>
-      <label>case</label> <input type="checkbox" title="standard?" ng-model="isStandard" />
-      <input ng-model="case" placeholder="76700" />
-      <label>dev</label>
-      <input ng-model="dev" placeholder="bdimperio" />
-      <label>Lights off?</label>
-      <input ng-model="lightsoff" type="checkbox" />
-      <div> <h2>IIS setup</h2>
-          <ul><li><span class="value">Site Bindings</span> should have a binding for <span class="value">net.tcp</span> bound to <span class="value">808:*</span></li></ul>
+    <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Diagnostics'];" data-role="tab menu">
+      <li ng-repeat="ts in tabs"><span ng-click="$parent.tab=($index+1)" ng-class="{true:'clickable',false:''}[$parent.tab!=$index+1]">{{ts}}</span></li>
+    </ul>
+      <div data-role="settings" ng-show="tab ==1">
+        <div>
+          <label>Machine</label>
+          <input ng-model="sandbox" placeholder="MachineName"/>
+        </div>
+        <label>CodeBase</label>
+        <input ng-model="codebase" placeholder="Test Release 13.1.0102.00"/>
+        <label>customer</label>
+        <input ng-model="customer" placeholder="Homestreet"/>
+        <label>case</label> <input type="checkbox" title="standard?" ng-model="isStandard" />
+        <input ng-model="case" placeholder="76700" />
+        <div>
+          <label>relativePathToWebSiteBase</label>
+          <input ng-model="machineBasePath" placeholder="c$\MFWebContent\Cases\" /> <span class="clickable" ng-click="machineBasePath='c$\\MFWebContent\\Cases\\';">Use MFWebContent</span> <span class="clickable" ng-click="machineBasePath='C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\';">Use local</span>
+        </div>
+          <label>dev</label>
+          <input ng-model="dev" placeholder="bdimperio" />
+          <label>Lights off?</label>
+          <input ng-model="lightsoff" type="checkbox" />
       </div>
-      <div> <h2>estimation</h2>
-          <ol>
-            <li>Determine files you suspect to change and add them to the case comments.</li>
-            <li>check if standard, {{customer}} standard, and/or {{customer}} have changes you will have to merge.</li>
-            <li>add estimate and reassign to QAB for estimation
+      <div data-role="setup" ng-show="tab ==2">
+        <div> <h2>IIS setup</h2>
+            <ul><li><span class="value">Site Bindings</span> should have a binding for <span class="value">net.tcp</span> bound to <span class="value">808:*</span></li></ul>
+        </div>
+        <div> <h2>estimation</h2>
+            <ol>
+              <li>Determine files you suspect to change and add them to the case comments.</li>
+              <li>check if standard, {{customer}} standard, and/or {{customer}} have changes you will have to merge.</li>
+              <li>add estimate and reassign to QAB for estimation
+            </ol>
+        </div>
+        <div> <h2>Source Retrieval</h2>
+          <ol><li>Pull code from <span class="value"><a href="file://\\mortgageflex.com\root\sourcecode\dotNETsource\">\\mortgageflex.com\root\sourcecode\dotNETsource\</a></span> ({{codebase}})</li>
+            <li>If case type is <span class="value">problem in standard</span> check all 3 locations for any existing check outs, check out the files you plan to modify for the case<ol>
+              <li>Do coding against standard FIRST</li>
+            <li>After unit testing approved for standard, retro-fit the code into the customer's code base.</li>  
+            </ol></li>
+            <li ng-class="{true:'',false:'invalid'}[!!customer]">Pull in {{customer}}'s changes and file additions from "<span class="value">Standard Code Base</span>" from VSS</li>
+            <li ng-class="{true:'',false:'invalid'}[!!customer]">Pull in {{customer}}'s current branch on top of that from VSS</li>
+            <li>have code in custom unit tested
           </ol>
+        </div>
       </div>
-      <div> <h2>Source Retrieval</h2>
-        <ol><li>Pull code from <span class="value"><a href="file://\\mortgageflex.com\root\sourcecode\dotNETsource\">\\mortgageflex.com\root\sourcecode\dotNETsource\</a></span> ({{codebase}})</li>
-          <li>If case type is <span class="value">problem in standard</span> check all 3 locations for any existing check outs, check out the files you plan to modify for the case<ol>
-            <li>Do coding against standard FIRST</li>
-          <li>After unit testing approved for standard, retro-fit the code into the customer's code base.</li>  
-          </ol></li>
-          <li ng-class="{true:'',false:'invalid'}[!!customer]">Pull in {{customer}}'s changes and file additions from "<span class="value">Standard Code Base</span>" from VSS</li>
-          <li ng-class="{true:'',false:'invalid'}[!!customer]">Pull in {{customer}}'s current branch on top of that from VSS</li>
-          <li>have code in custom unit tested
-        </ol>
-      </div>
-      <div> <h2>visual studio publish dialogs</h2> On first deploy (it should be saved after that)
-       <ul>
-        <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\c$\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
-        <li> Set it to <span class="value">From a Web site</span></li>
-        <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/</li>
-      </ul> </div>
-      <div><h2> file system - deploy service(s)</h2>
-        Copy <span class="value">C:\Microsoft .Net 3.5 Framework\Mortgageflex products\Common Framework\Host\Mortgageflex.Services.Host.LoanQuest</span>
-        to <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\c$\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
-      </div>
-      <div> <h2>Rdp Session</h2>
-        On each deploy
-        <ol>
-          <li ng-class="{true:'',false:'invalid'}[!!sandbox]">rdp to <span class="sandbox">{{displaySandbox()}}</span></li>
-          <li>run <span class="value">C:\Program Files (x86)\MortgageFlex Systems\MortgageFlex LoanQuest Configuration\bin\MortgageFlex.LoanQuest.Configuration.exe</span></li>
-          <li>Usually <span class="value">Origination</span></li>
-          <li>Select <span class="value">Deployment Server Configurations</span> (ensure only <span class="value">3-tier</span> is checked)</li>
-          <li>Click <span class="value">Browse</span> -> <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy</span></li>
-          <li> Verify update location: <a href="{{caseUrl()}}/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application</span></a></li>
-          <li >Unique Environment Name <span ng-class="{true:'value',false:'invalid'}[(environmentName() && validcase())==true]">{{environmentName()}}<span class="case">{{displayCase()}}</span></span></li>
-          <li>From <span ng-class="{true:'value',false:'invalid'}[validcase()==true]">LoanQuestMonitor<span class="case">{{displayCase()}}</span>@mortgageflex.com</span></li>
-          <li>to <span ng-class="{true:'value',false:'invalid'}[!!dev]">{{dev}}@mortgageflex.com</span></li>
-          <li>Application Server Url: <a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></li>
-        </ol>
+      <div data-role="publishing" ng-show="tab == 3">
+        <div> <h2>visual studio publish dialogs</h2> On first deploy (it should be saved after that)
+         <ul>
+          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
+          <li> Set it to <span class="value">From a Web site</span></li>
+          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/</li>
+        </ul> </div>
+        <div><h2> file system - deploy service(s)</h2>
+          Copy <span class="value">C:\Microsoft .Net 3.5 Framework\Mortgageflex products\Common Framework\Host\Mortgageflex.Services.Host.LoanQuest</span>
+          to <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}\<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
+        </div>
+        <div> <h2>Rdp Session</h2>
+          On each deploy
+          <ol>
+            <li ng-class="{true:'',false:'invalid'}[!!sandbox]">rdp to <span class="sandbox">{{displaySandbox()}}</span></li>
+            <li>run <span class="value">C:\Program Files (x86)\MortgageFlex Systems\MortgageFlex LoanQuest Configuration\bin\MortgageFlex.LoanQuest.Configuration.exe</span></li>
+            <li>Usually <span class="value">Origination</span></li>
+            <li>Select <span class="value">Deployment Server Configurations</span> (ensure only <span class="value">3-tier</span> is checked)</li>
+            <li>Click <span class="value">Browse</span> -> <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy</span></li>
+            <li> Verify update location: <a href="{{caseUrl()}}/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application</span></a></li>
+            <li >Unique Environment Name <span ng-class="{true:'value',false:'invalid'}[(environmentName() && validcase())==true]">{{environmentName()}}<span class="case">{{displayCase()}}</span></span></li>
+            <li>From <span ng-class="{true:'value',false:'invalid'}[validcase()==true]">LoanQuestMonitor<span class="case">{{displayCase()}}</span>@mortgageflex.com</span></li>
+            <li>to <span ng-class="{true:'value',false:'invalid'}[!!dev]">{{dev}}@mortgageflex.com</span></li>
+            <li>Application Server Url: <a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></li>
+          </ol>
 
+        </div>
+        <div><h2>IIS manager</h2>
+          only on the first deploy
+          <ol>
+            <li>add a new virtual directory for the <span ng-class="{true:'case',false:'invalid'}[validcase()]">{{displayCase()}}</span> directory pointing to <span ng-class="{true:'value',false:'invalid'}[validcase()]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span></span></li>
+            <li>convert to applications <span class="value">LoanQuestNETDeploy</span> and <span class="value">Mortgageflex.Services.Host.LoanQuest</span>
+          </ol>
+          
+            Update all services -> Advanced Settings -> Enabled Protocols <span class="value">http,net.tcp</span>
+        </div>
+        <div><h2>Test install</h2>
+          <div>Open the app from <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a> and make sure you can login</div>
+          Test the case feature(s)
+        </div>
+
+        <div><h2>Source Changes</h2>
+          <ul>
+            <li>comment all changes with <span ng-class="{true:'case',false:'invalid'}[validcase()]"> // {{{true:'',false:'custom '}[!!isStandard]}}case {{displayCase()}}</span></li>
+          </ul>
+        </div>
+        <div><h2>Case management</h2>
+          <ol>
+            <li>Update the case to ~<span class="value">80</span>%</li>
+            <li>Add a comment about the deployment location <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a></li>
+            <li>Reassign to QA (usually <span class="value">QAB</span>)</li>
+            <li>Set the Reassign for to <span class="value">Unit Testing</span></li>
+          </ol>
+          
+        </div>
       </div>
-      <div><h2>IIS manager</h2>
-        only on the first deploy
-        <ol>
-          <li>add a new virtual directory for the <span ng-class="{true:'case',false:'invalid'}[validcase()]">{{displayCase()}}</span> directory pointing to <span ng-class="{true:'value',false:'invalid'}[validcase()]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span></span></li>
-          <li>convert to applications <span class="value">LoanQuestNETDeploy</span> and <span class="value">Mortgageflex.Services.Host.LoanQuest</span>
-        </ol>
-        
-          Update all services -> Advanced Settings -> Enabled Protocols <span class="value">http,net.tcp</span>
-      </div>
-      <div><h2>Test install</h2>
-        <div>Open the app from <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a> and make sure you can login</div>
-        Test the case feature(s)
-      </div>
-      <div><h2>Source Changes</h2>
-        <ul>
-          <li>comment all changes with <span ng-class="{true:'case',false:'invalid'}[validcase()]"> // {{{true:'',false:'custom '}[!!isStandard]}}case {{displayCase()}}</span></li>
-        </ul>
-      </div>
-      <div><h2>Case management</h2>
-        <ol>
-          <li>Update the case to ~<span class="value">80</span>%</li>
-          <li>Add a comment about the deployment location <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a></li>
-          <li>Reassign to QA (usually <span class="value">QAB</span>)</li>
-          <li>Set the Reassign for to <span class="value">Unit Testing</span></li>
-        </ol>
-        
-      </div>
-      <div><h2>Service Tests</h2>
-        <table>
+      <div data-role="diagnostics" ng-show="tab ==4">
+        <div><h2>Service Tests</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>status</th><th>config</th><th>link</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="svc in services">
+              <td>{{svc.name}}<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
+              <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
+              <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">web.config</a>
+                <span ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">load json</span> </td>
+              <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
+            </tr>
+          </tbody>
+        </table>
+        <table data-role="parsed config viewer">
           <thead>
             <tr>
-              <th>Name</th><th>status</th><th>config</th><th>link</th>
+              <th>name</th><th>connection strings</th><th>client strings</th>
             </tr>
           </thead>
           <tbody>
-          <tr ng-repeat="svc in services">
-            <td>{{svc.name}}<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
-            <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
-            <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base=c$\MFWebContent\Cases\{{case}}&path={{svc.dir}}Web.config">web.config</a>
-              <span ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base=c$\\MFWebContent\\Cases\\'+case+'&path='+svc.dir+'Web.config',svc);">load json</span> </td>
-            <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
-          </tr>
-        </tbody>
-      </table>
-      <table data-role="parsed config viewer">
-        <thead>
-          <tr>
-            <th>name</th><th>connection strings</th><th>client strings</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="svc in services">
-            <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base=c$\\MFWebContent\\Cases\\'+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
-            <td>{{svc.getDefaultDatabase()}} {{svc.getConnectionString()}}</td>
-          </tr>
-        </tbody>
-      </table>
+            <tr ng-repeat="svc in services">
+              <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
+              <td>{{svc.getDefaultDatabase()}} {{svc.getConnectionString()}}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
       </div>
     </div>
     <script>
@@ -253,7 +276,7 @@
       }
       $scope.getUrl= function(subPath){
         //return '<div> test success?perhaps</div>';
-        if($scope.validcase() && $scope.sandbox && !ajaxResults[subPath])
+        if($scope.validcase() && $scope.sandbox && !ajaxResults[subPath] && $scope.machineBasePath)
         {
           ajaxResults[subPath]=ajaxResults.empty;
           var targetUrl="http://"+$scope.nodeHost+"/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
@@ -275,13 +298,15 @@
         ajaxResults={empty:'<span class="case">Loading...?</span>'};
       }),true);
       
-      var setLocal=function(name){
+      var setLocal=function(name,defaultVal){
         if(window.localStorage){
           if(!$scope[name]){
             var stored=localStorage.getItem(name);
             if(stored){
               //console.log('found stored:'+name);
               $scope[name]=stored;
+            } else{
+              $scope[name]=defaultVal;
             }
           }
 
@@ -302,6 +327,7 @@
       setLocal('codebase');
       setLocal('isStandard');
       setLocal('lightsoff');
+      setLocal('machineBasePath','c$\\MFWebContent\\Cases\\');
     };
     </script>
     <script src="jquery.ba-throttle-debounce.js"></script>

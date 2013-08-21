@@ -54,11 +54,20 @@ app.get('/parsed.config',function(req,res){
 	var path="\\\\"+req.query.host+"\\"+req.query.base+"\\"+req.query.path;
 	
 	fs.readFile(path,function(err,data){
-		var parser = new xml2js.Parser();
-		parser.parseString(data,function(err,result){
-			res.send(result);
+		if(err){
+			console.log('readFile error:'+err);
+			res.send(err);
 			res.end();
-		});
+			return;
+		}
+		var parser = new xml2js.Parser();
+		
+			parser.parseString(data,function(err,result){
+				res.send(result);
+				res.end();
+			});
+		
+		
 	});
 
 });
