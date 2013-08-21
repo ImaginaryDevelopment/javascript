@@ -91,13 +91,13 @@
       <div data-role="publishing" ng-show="tab == 3">
         <div> <h2>visual studio publish dialogs</h2> On first deploy (it should be saved after that)
          <ul>
-          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
+          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
           <li> Set it to <span class="value">From a Web site</span></li>
           <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/</li>
         </ul> </div>
         <div><h2> file system - deploy service(s)</h2>
           Copy <span class="value">C:\Microsoft .Net 3.5 Framework\Mortgageflex products\Common Framework\Host\Mortgageflex.Services.Host.LoanQuest</span>
-          to <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}\<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
+          to <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
         </div>
         <div> <h2>Rdp Session</h2>
           On each deploy
