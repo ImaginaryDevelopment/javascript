@@ -45,16 +45,26 @@ var processUrlStatus=function(host,path,res){
 	
 		res.send(response.statusCode);
 		res.end();
-	}).on('error',function(e){
-		console.log('http.request error for '+host+path+' : '+JSON.stringify(e));
-		switch(e.code){
-			case 'ENOTFOUND':
-			res.send('Endpoint not found');
-			break;
-			default:
-			res.send(e.code);	
-		}
-		res.end();
-	});
+		console.log('res.end success!');
+	})
+		.on('socket',function(socket){
+			socket.setTimeout(1000);
+			socket.on('timeout',function(){
+				console.log('aborting:timeout hit:'+host+path);
+				req.abort();
+			})
+		})
+		.on('error',function(e){
+			console.log('http.request error for '+host+path+' : '+JSON.stringify(e));
+			switch(e.code){
+				case 'ENOTFOUND':
+				res.send('Endpoint not found');
+				break;
+				default:
+				res.send(e.code);	
+			}
+			res.end();
+
+		});
 	req.end();
 };
