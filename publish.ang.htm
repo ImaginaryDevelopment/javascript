@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <title>Configuration Helper</title>
     <style>
       body.lightsoff{
         background-color: black;
@@ -42,7 +43,7 @@
     </style>
   </head>
   <body ng-app ng-controller="PublishCtrl" ng-class="{true:'lightson',false:'lightsoff'}[lights]">
-    <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Diagnostics'];" data-role="tab menu">
+    <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Sandbox Config','Diagnostics'];" data-role="tab menu">
       <li ng-repeat="ts in tabs"><span ng-click="$parent.tab=($index+1)" ng-class="{true:'clickable',false:''}[$parent.tab!=$index+1]">{{ts}}</span></li>
     </ul>
       <div data-role="settings" ng-show="tab ==1">
@@ -141,10 +142,16 @@
             <li>Reassign to QA (usually <span class="value">QAB</span>)</li>
             <li>Set the Reassign for to <span class="value">Unit Testing</span></li>
           </ol>
-          
         </div>
       </div>
-      <div data-role="diagnostics" ng-show="tab ==4">
+      <div data-role="sandbox config" ng-show="tab ==4">
+        <h2>IIS</h2>
+        <ul>  
+          <li> App pool must run as NetworkService</li>
+          <li>32 bit applications enabled</li>
+        </ul>
+      </div>
+      <div data-role="diagnostics" ng-show="tab ==5">
         <div><h2>Service Tests</h2>
           <table>
             <thead>
@@ -172,6 +179,7 @@
             <tr ng-repeat="svc in services">
               <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
               <td>{{svc.getDefaultDatabase()}} {{svc.getConnectionString()}}</td>
+              <td>{{svc.getClients()}}</td>
             </tr>
           </tbody>
         </table>
@@ -179,6 +187,11 @@
       </div>
     </div>
     <script>
+    //var myModule = angular.module('myModule',[]);
+    //myModule.factory('singletons',function(){
+    //    var singletons = {sandbox:"",mfCase:76700};
+    //    return singletons;
+    //});
     //https://github.com/knockout/knockout/blob/master/src/utils.js
     if(!Array.prototype.arrayFirst){
       Array.prototype.arrayFirst=function (predicate, predicateOwner) {
@@ -219,7 +232,7 @@
           if(!self.parsed.configuration.dataConfiguration[0])
             return;
           return self.parsed.configuration.dataConfiguration[0].$.defaultDatabase;
-        }
+        };
         this.getConnectionString=function(){
           var dd= self.getDefaultDatabase();
           if(!dd)
@@ -229,6 +242,20 @@
             return;
           var connectionStrings= connectionStringsJs.arrayMap(function(e){return e.$;});
           return connectionStrings.arrayFirst(function(e){return e.name && e.name==dd;});
+        };
+        this.getClients= function(){
+          if(!self.parsed)
+            return;
+          if(!self.parsed.configuration)
+            return "no configuration";
+          if(!self.parsed.configuration['system.serviceModel'])
+            return "No Service Model";
+          var clients = self.parsed.configuration['system.serviceModel'][0].client[0].endpoint
+            .arrayMap(function(a){
+                return {name:a.$.name,address:a.$.address};
+            });
+
+          return clients;
         }
       };
       $scope.services = [
