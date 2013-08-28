@@ -186,7 +186,7 @@
               <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
               <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
               </td>
-              <td>{{svc.getDefaultDatabase()}}</td>
+              <td>{{svc.getDefaultDatabase(false,true)}}</td>
               <td title="{{svc.getConnectionString()}}">{{svc.getConnectionString(false,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.remoteClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
 
@@ -194,10 +194,10 @@
              <tr ng-repeat="svc in services">
               <td><a href="http://{{nodeHost}}/web.config?host=localhost&base={{localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
               <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host=localhost&base='+localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
-              <td>{{svc.getDefaultDatabase(true)}}</td>
+              <td>{{svc.getDefaultDatabase(true,true)}}</td>
               <td title="{{svc.getConnectionString(true)}}">{{svc.getConnectionString(true,'connectionString')}}</td>
-              <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
-              
+              <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -293,12 +293,19 @@ function maybe(item,message) {
           return parsed;
         };
 
-        this.getDefaultDatabase= function(local){
+        this.getDefaultDatabase= function(local,returnError){
           var parsed=getConfig(local);
-          var dd= (((parsed||{}).configuration||{}).dataConfiguration||[])[0];
-          if(!dd)
-            return;
-          return dd.$.defaultDatabase;
+
+          var dd=maybe(parsed,"not attempted")
+            ._('configuration',"no configuration")
+            ._('dataConfiguration',"no dataConfiguration")
+            ._(0,"empty dataConfiguration")
+            ._('$',"invalid dataConfiguration")
+            ._('defaultDatabase',"no default database");
+          var result= dd.result();
+          if(!result && returnError)
+            return dd.message;
+          return result;
         };
         this.getConnectionString=function(local,propName){
           var dd= self.getDefaultDatabase(local);
