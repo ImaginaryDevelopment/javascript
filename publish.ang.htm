@@ -184,18 +184,20 @@
           <tbody>
             <tr ng-repeat="svc in services">
               <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
+              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
+              </td>
               <td>{{svc.getDefaultDatabase()}}</td>
               <td title="{{svc.getConnectionString()}}">{{svc.getConnectionString(false,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.remoteClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
-              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
-              </td>
+
             </tr>
              <tr ng-repeat="svc in services">
               <td><a href="http://{{nodeHost}}/web.config?host=localhost&base={{localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
+              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host=localhost&base='+localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
               <td>{{svc.getDefaultDatabase(true)}}</td>
               <td title="{{svc.getConnectionString(true)}}">{{svc.getConnectionString(true,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
-              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host=localhost&base='+localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
+              
             </tr>
           </tbody>
         </table>
@@ -210,6 +212,54 @@
     //    return singletons;
     //});
     //https://github.com/knockout/knockout/blob/master/src/utils.js
+ function type(obj) {
+    var obj_type = typeof obj;
+    return ({
+        is: function (type) {
+            return obj_type === type;
+        },
+        is_object: function () {
+            return obj_type === "object";
+        },
+        is_func: function () {
+            return obj_type === "function";
+        },
+        is_string: function () {
+            return obj_type === "string";
+        }
+    });
+};
+
+function maybe(item,message) {
+    var _message=message;
+    return ({
+        result: function (accessor, __default) {
+            if (!item) return type(accessor).is_func() ? __default : accessor;
+            else return type(accessor).is_func() ? accessor(item) : item;
+        },message:message,
+        _: function (accessor,message) {
+            if (!item) return maybe(null,_message);
+            if (!accessor && type(item).is_func()) {
+
+                return maybe(item(),message);
+            }
+            if (type(accessor).is_string()) {
+                if (item.hasOwnProperty(accessor)) return maybe(item[accessor],message);
+                var result = item[accessor];
+                if (result) return maybe(item[accessor].call(item),message);
+
+                return maybe(result,message);
+            }
+            if (type(accessor).is_func()) {
+
+                return maybe(accessor(item),message);
+            }
+
+            return maybe(item[accessor],message);
+        }
+    });
+};
+    
     if(!Array.prototype.arrayFirst){
       Array.prototype.arrayFirst=function (predicate, predicateOwner) {
             var array= this || [];
@@ -245,15 +295,10 @@
 
         this.getDefaultDatabase= function(local){
           var parsed=getConfig(local);
-          if(!parsed)
+          var dd= (((parsed||{}).configuration||{}).dataConfiguration||[])[0];
+          if(!dd)
             return;
-          if(!parsed.configuration)
-            return;
-          if(!parsed.configuration.dataConfiguration)
-            return;
-          if(!parsed.configuration.dataConfiguration[0])
-            return;
-          return parsed.configuration.dataConfiguration[0].$.defaultDatabase;
+          return dd.$.defaultDatabase;
         };
         this.getConnectionString=function(local,propName){
           var dd= self.getDefaultDatabase(local);
@@ -270,13 +315,18 @@
         
         var getClients=function(local){
           var parsed=getConfig(local);
-          if(!parsed)
-            return ["not attempted"];
-          if(!parsed.configuration)
-            return ["no configuration"];
-          if(!parsed.configuration['system.serviceModel'])
-            return ["No Service Model"];
-          var clients = parsed.configuration['system.serviceModel'][0].client[0].endpoint
+          var eps= maybe(parsed,"not attempted")
+            ._('configuration',"no configuration")
+            ._('system.serviceModel',"no serviceModel")
+            ._(0,"empty serviceModel")
+            ._('client',"no clients")
+            ._(0,"empty clients")
+            ._('endpoint',"no endpoints");
+            var result=eps.result();
+            if(!result)
+          return [eps.message];
+
+          var clients = result
             .arrayMap(function(a){
                 return {name:a.$.name,address:a.$.address};
             });
