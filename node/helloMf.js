@@ -7,7 +7,8 @@ var express = require('express'),
     url = require('url'),
     auth = require('./auth.js'),
     httpstatus = require('./httpstatus.js'),
-    xml2js = require('xml2js')
+    xml2js = require('xml2js'),
+    spawn = require('./spawn.js')
     ;
  var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -95,7 +96,7 @@ app.get('/web.config',function(req,res){
 httpstatus.routes(app);
 
 auth.authRoutes(app,fs);
-
+spawn.spawnRoutes(app);
 if(!process.env){
 	process.env={};
 }

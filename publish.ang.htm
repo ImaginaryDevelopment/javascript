@@ -156,33 +156,50 @@
           <table>
             <thead>
               <tr>
-                <th>Name</th><th>status</th><th>config</th><th>link</th>
+                <th>Name</th><th>status</th><th>link</th>
               </tr>
             </thead>
             <tbody>
             <tr ng-repeat="svc in services">
               <td>{{svc.name}}<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
               <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
-              <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">web.config</a>
-                <span ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">load json</span> </td>
+              
               <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
+            </tr>
+            <tr ng-repeat="svc in services">
+               <td>{{svc.name}}(local)<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
+              <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
+              
+              <td><a href="http://localhost{{svc.url}}"><span class="value">http://<span class="sandbox">localhost</span>{{svc.url}}</span></a></td>
             </tr>
           </tbody>
         </table>
+        <h2>Config files</h2>
         <table data-role="parsed config viewer">
           <thead>
             <tr>
-              <th>name</th><th>connection strings</th><th>client strings</th>
+              <th>name</th><th>default db</th><th>connection strings</th><th>client strings</th><th></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="svc in services">
-              <td  ng-init="svc.parsed={};" ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">{{svc.name}}</td>
-              <td>{{svc.getDefaultDatabase()}} {{svc.getConnectionString()}}</td>
-              <td>{{svc.getClients()}}</td>
+              <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
+              <td>{{svc.getDefaultDatabase()}}</td>
+              <td title="{{svc.getConnectionString()}}">{{svc.getConnectionString(false,'connectionString')}}</td>
+              <td><ul><li ng-repeat="slClient in svc.remoteClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
+              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
+              </td>
+            </tr>
+             <tr ng-repeat="svc in services">
+              <td><a href="http://{{nodeHost}}/web.config?host=localhost&base={{localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
+              <td>{{svc.getDefaultDatabase(true)}}</td>
+              <td title="{{svc.getConnectionString(true)}}">{{svc.getConnectionString(true,'connectionString')}}</td>
+              <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
+              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host=localhost&base='+localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
             </tr>
           </tbody>
         </table>
+
         </div>
       </div>
     </div>
@@ -211,10 +228,7 @@
             return result;
         };
     }
-    var PublishCtrl=function($scope,$http,$timeout){
-      window.publishCtrl=$scope;
-      $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
-      var Service = function(name,path,svc,notes){
+    var Service = function(name,path,svc,notes){
         var self=this;
         this.name=name;
         this.path=path;
@@ -222,42 +236,68 @@
         this.notes=notes;
         this.dir="\\"+path.replace("/","\\")+"\\";
         this.url="/"+path.replace("\\","/")+"/"+svc;
-        this.getDefaultDatabase= function(){
-          if(!self.parsed)
-            return;
-          if(!self.parsed.configuration)
-            return;
-          if(!self.parsed.configuration.dataConfiguration)
-            return;
-          if(!self.parsed.configuration.dataConfiguration[0])
-            return;
-          return self.parsed.configuration.dataConfiguration[0].$.defaultDatabase;
+
+        
+        var getConfig=function(local){
+          var parsed= local? self.parsedlocal:self.parsed;
+          return parsed;
         };
-        this.getConnectionString=function(){
-          var dd= self.getDefaultDatabase();
+
+        this.getDefaultDatabase= function(local){
+          var parsed=getConfig(local);
+          if(!parsed)
+            return;
+          if(!parsed.configuration)
+            return;
+          if(!parsed.configuration.dataConfiguration)
+            return;
+          if(!parsed.configuration.dataConfiguration[0])
+            return;
+          return parsed.configuration.dataConfiguration[0].$.defaultDatabase;
+        };
+        this.getConnectionString=function(local,propName){
+          var dd= self.getDefaultDatabase(local);
           if(!dd)
             return;
-          var connectionStringsJs= self.parsed.configuration.connectionStrings[0].add;
+          var parsed=local? self.parsedlocal:self.parsed;
+          var connectionStringsJs= parsed.configuration.connectionStrings[0].add;
           if(!connectionStringsJs)
             return;
           var connectionStrings= connectionStringsJs.arrayMap(function(e){return e.$;});
-          return connectionStrings.arrayFirst(function(e){return e.name && e.name==dd;});
+          var cs=connectionStrings.arrayFirst(function(e){return e.name && e.name==dd;});
+          return propName?cs[propName]:cs;
         };
-        this.getClients= function(){
-          if(!self.parsed)
-            return;
-          if(!self.parsed.configuration)
-            return "no configuration";
-          if(!self.parsed.configuration['system.serviceModel'])
-            return "No Service Model";
-          var clients = self.parsed.configuration['system.serviceModel'][0].client[0].endpoint
+        
+        var getClients=function(local){
+          var parsed=getConfig(local);
+          if(!parsed)
+            return ["not attempted"];
+          if(!parsed.configuration)
+            return ["no configuration"];
+          if(!parsed.configuration['system.serviceModel'])
+            return ["No Service Model"];
+          var clients = parsed.configuration['system.serviceModel'][0].client[0].endpoint
             .arrayMap(function(a){
                 return {name:a.$.name,address:a.$.address};
             });
 
           return clients;
-        }
+        };
+         this.localClients=getClients(true);
+        this.remoteClients=getClients(false);
+        this.onLocalChanged=function(){
+            self.localClients=getClients(true);
+        };
+        this.onRemoteChanged=function(){
+          self.remoteClients=getClients(false);
+        };
       };
+    var PublishCtrl=function($scope,$http,$timeout){
+      window.publishCtrl=$scope;
+      $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
+      $scope.localpath="C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\";
+      
+       
       $scope.services = [
         new Service("Wcf Portal","Mortgageflex.Services.Host.LoanQuest","WcfPortal.svc"),
         new Service("Registration Portal","Mortgageflex.Services.Host.Registration","WcfPortal.svc"),
@@ -290,20 +330,27 @@
         return '/LoanQuestNETDeploy/publish.htm';
       };
       var ajaxResults={empty:'<span>No data</span>'};
-      $scope.getJson= function(uri,svc){
+      $scope.getJson= function(uri,svc,local){
         return $http.get(uri)
             .success(function(data,status,headers,config){
               console.log('ajax success:'+uri);
               window.parsed= data;
-              svc.parsed=data;
+              if(local){
+                svc.parsedlocal=data;
+                svc.onLocalChanged();
+              } else {
+                svc.parsed=data;  
+                svc.onRemoteChanged();
+              }
+              
             }).error(function(data,status,headers,config){
               console.log('ajax failure');
               return {error:status};
           });
       }
-      $scope.getUrl= function(subPath){
-        //return '<div> test success?perhaps</div>';
-        if($scope.validcase() && $scope.sandbox && !ajaxResults[subPath] && $scope.machineBasePath)
+      $scope.getUrl= function(subPath,force){ //force is for full custom paths
+        
+        if(subPath && subPath.length>0 && ($scope.validcase() && $scope.sandbox && !ajaxResults[subPath] && $scope.machineBasePath) || force)
         {
           ajaxResults[subPath]=ajaxResults.empty;
           var targetUrl="http://"+$scope.nodeHost+"/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
