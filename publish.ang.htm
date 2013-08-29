@@ -42,14 +42,14 @@
       }
     </style>
   </head>
-  <body ng-app ng-controller="PublishCtrl" ng-class="{true:'lightson',false:'lightsoff'}[lights]">
-    <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Sandbox Config','Diagnostics'];" data-role="tab menu">
+  <body ng-app="myApp" ng-controller="PublishCtrl" ng-class="{true:'lightson',false:'lightsoff'}[lights]">
+    <ul ng-init="tab=1; tabs=['Settings','Getting Setup to code', 'Publishing','Sandbox Config','Svc Diagnostics','Deploy Diagnostics'];" data-role="tab menu">
       <li ng-repeat="ts in tabs"><span ng-click="$parent.tab=($index+1)" ng-class="{true:'clickable',false:''}[$parent.tab!=$index+1]">{{ts}}</span></li>
     </ul>
       <div data-role="settings" ng-show="tab ==1">
         <div>
           <label>Machine</label>
-          <input ng-model="sandbox" placeholder="MachineName"/>
+          <input ng-model="globals.sandbox" placeholder="MachineName"/>
         </div>
         <label>CodeBase</label>
         <input ng-model="codebase" placeholder="Test Release 13.1.0102.00"/>
@@ -92,27 +92,27 @@
       <div data-role="publishing" ng-show="tab == 3">
         <div> <h2>visual studio publish dialogs</h2> On first deploy (it should be saved after that)
          <ul>
-          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
+          <li ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy\</li>
           <li> Set it to <span class="value">From a Web site</span></li>
-          <li ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/</li>
+          <li ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/</li>
         </ul> </div>
         <div><h2> file system - deploy service(s)</h2>
           Copy <span class="value">C:\Microsoft .Net 3.5 Framework\Mortgageflex products\Common Framework\Host\Mortgageflex.Services.Host.LoanQuest</span>
-          to <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
+          to <span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">\\<span class="sandbox">{{displaySandbox()}}</span>\{{machineBasePath}}<span class="case">{{displayCase()}}</span>\Mortgageflex.Services.Host.LoanQuest</span>
         </div>
         <div> <h2>Rdp Session</h2>
           On each deploy
           <ol>
-            <li ng-class="{true:'',false:'invalid'}[!!sandbox]">rdp to <span class="sandbox">{{displaySandbox()}}</span></li>
+            <li ng-class="{true:'',false:'invalid'}[!!globals.sandbox]">rdp to <span class="sandbox">{{displaySandbox()}}</span></li>
             <li>run <span class="value">C:\Program Files (x86)\MortgageFlex Systems\MortgageFlex LoanQuest Configuration\bin\MortgageFlex.LoanQuest.Configuration.exe</span></li>
             <li>Usually <span class="value">Origination</span></li>
             <li>Select <span class="value">Deployment Server Configurations</span> (ensure only <span class="value">3-tier</span> is checked)</li>
-            <li>Click <span class="value">Browse</span> -> <span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy</span></li>
-            <li> Verify update location: <a href="{{caseUrl()}}/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application</span></a></li>
+            <li>Click <span class="value">Browse</span> -> <span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">C:\MFWebContent\Cases\<span class="case">{{displayCase()}}</span>\LoanQuestNETDeploy</span></li>
+            <li> Verify update location: <a href="{{caseUrl()}}/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application"><span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/LoanQuestNETDeploy/Mortgageflex.LoanQuest.application</span></a></li>
             <li >Unique Environment Name <span ng-class="{true:'value',false:'invalid'}[(environmentName() && validcase())==true]">{{environmentName()}}<span class="case">{{displayCase()}}</span></span></li>
             <li>From <span ng-class="{true:'value',false:'invalid'}[validcase()==true]">LoanQuestMonitor<span class="case">{{displayCase()}}</span>@mortgageflex.com</span></li>
             <li>to <span ng-class="{true:'value',false:'invalid'}[!!dev]">{{dev}}@mortgageflex.com</span></li>
-            <li>Application Server Url: <a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></li>
+            <li>Application Server Url: <a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc"><span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>/Mortgageflex.Services.Host.LoanQuest/WcfPortal.svc</span></a></li>
           </ol>
 
         </div>
@@ -126,7 +126,7 @@
             Update all services -> Advanced Settings -> Enabled Protocols <span class="value">http,net.tcp</span>
         </div>
         <div><h2>Test install</h2>
-          <div>Open the app from <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a> and make sure you can login</div>
+          <div>Open the app from <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a> and make sure you can login</div>
           Test the case feature(s)
         </div>
 
@@ -138,7 +138,7 @@
         <div><h2>Case management</h2>
           <ol>
             <li>Update the case to ~<span class="value">80</span>%</li>
-            <li>Add a comment about the deployment location <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a></li>
+            <li>Add a comment about the deployment location <a href="{{caseUrl()}}{{deployUrl()}}"><span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{deployUrl()}}</span></a></li>
             <li>Reassign to QA (usually <span class="value">QAB</span>)</li>
             <li>Set the Reassign for to <span class="value">Unit Testing</span></li>
           </ol>
@@ -151,7 +151,7 @@
           <li>32 bit applications enabled</li>
         </ul>
       </div>
-      <div data-role="diagnostics" ng-show="tab ==5">
+      <div data-role="svc diagnostics" ng-show="tab ==5">
         <div><h2>Service Tests</h2>
           <table>
             <thead>
@@ -162,13 +162,13 @@
             <tbody>
             <tr ng-repeat="svc in services">
               <td>{{svc.name}}<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
-              <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
+              <td><span ng-bind-html-unsafe="getUrlStatus(svc.url)"></span></td>
               
-              <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
+              <td><a href="http://{{displaySandbox()}}.mortgageflex.com/{{displayCase()}}{{svc.url}}"><span ng-class="{true:'value',false:'invalid'}[(globals.sandbox && validcase())==true]">http://<span class="sandbox">{{displaySandbox()}}</span>.mortgageflex.com/<span class="case">{{displayCase()}}</span>{{svc.url}}</span></a></td>
             </tr>
             <tr ng-repeat="svc in services">
                <td>{{svc.name}}(local)<span ng-show="!!svc.notes" title="{{svc.notes}}">*</span></td>
-              <td><span ng-bind-html-unsafe="getUrl(svc.url)"></span></td>
+              <td><span ng-bind-html-unsafe="getUrlStatus(svc.url)"></span></td>
               
               <td><a href="http://localhost{{svc.url}}"><span class="value">http://<span class="sandbox">localhost</span>{{svc.url}}</span></a></td>
             </tr>
@@ -183,8 +183,8 @@
           </thead>
           <tbody>
             <tr ng-repeat="svc in services">
-              <td><a href="http://{{nodeHost}}/web.config?host={{sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
-              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host='+sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
+              <td><a href="http://{{globals.nodeHost}}/web.config?host={{globals.sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
+              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host='+globals.sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
               </td>
               <td>{{svc.getDefaultDatabase(false,true)}}</td>
               <td title="{{svc.getConnectionString()}}">{{svc.getConnectionString(false,'connectionString')}}</td>
@@ -192,8 +192,8 @@
 
             </tr>
              <tr ng-repeat="svc in services">
-              <td><a href="http://{{nodeHost}}/web.config?host=localhost&base={{localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
-              <td><button ng-click="getJson('http://'+nodeHost+'/parsed.config?host=localhost&base='+localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
+              <td><a href="http://{{globals.nodeHost}}/web.config?host=localhost&base={{globals.localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
+              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host=localhost&base='+globals.localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
               <td>{{svc.getDefaultDatabase(true,true)}}</td>
               <td title="{{svc.getConnectionString(true)}}">{{svc.getConnectionString(true,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul>
@@ -204,14 +204,15 @@
 
         </div>
       </div>
+      <div data-role="deploy diagnostics" ng-show="tab ==6">
+        \\{{globals.sandbox}}\{{machineBasePath}}{{case}}\LoanQuestNETDeploy\
+        <button ng-click="getJson()">Refresh</button>
+      </div>
     </div>
+     <script src="jquery.ba-throttle-debounce.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script>
-    //var myModule = angular.module('myModule',[]);
-    //myModule.factory('singletons',function(){
-    //    var singletons = {sandbox:"",mfCase:76700};
-    //    return singletons;
-    //});
-    //https://github.com/knockout/knockout/blob/master/src/utils.js
+  
  function type(obj) {
     var obj_type = typeof obj;
     return ({
@@ -259,6 +260,7 @@ function maybe(item,message) {
         }
     });
 };
+    //https://github.com/knockout/knockout/blob/master/src/utils.js
     
     if(!Array.prototype.arrayFirst){
       Array.prototype.arrayFirst=function (predicate, predicateOwner) {
@@ -278,6 +280,14 @@ function maybe(item,message) {
             return result;
         };
     }
+    var app = angular.module('myApp',[])
+    .factory('globals',function(){
+      var result={nodeHost:"mf1374-prog1.mortgageflex.com:81",localPath:"C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\",sandbox:"vBcdApp1"};
+      window.globals=result;
+      return result;
+    });
+
+    
     var Service = function(name,path,svc,notes){
         var self=this;
         this.name=name;
@@ -349,12 +359,10 @@ function maybe(item,message) {
           self.remoteClients=getClients(false);
         };
       };
-    var PublishCtrl=function($scope,$http,$timeout){
+    var PublishCtrl=function($scope,$http,$timeout,globals){
       window.publishCtrl=$scope;
-      $scope.nodeHost= "mf1374-prog1.mortgageflex.com:81";
-      $scope.localpath="C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\";
-      
-       
+      $scope.globals=globals;
+      $scope.sandbox=$scope.globals.sandbox;
       $scope.services = [
         new Service("Wcf Portal","Mortgageflex.Services.Host.LoanQuest","WcfPortal.svc"),
         new Service("Registration Portal","Mortgageflex.Services.Host.Registration","WcfPortal.svc"),
@@ -369,8 +377,8 @@ function maybe(item,message) {
         return "______";
       }
       $scope.displaySandbox=function(){
-        if($scope.sandbox){
-          return $scope.sandbox;
+        if($scope.globals.sandbox){
+          return $scope.globals.sandbox;
         }
         return "v___App_";
       }
@@ -387,7 +395,8 @@ function maybe(item,message) {
         return '/LoanQuestNETDeploy/publish.htm';
       };
       var ajaxResults={empty:'<span>No data</span>'};
-      $scope.getJson= function(uri,svc,local){
+
+      $scope.getSvcJson= function(uri,svc,local){
         return $http.get(uri)
             .success(function(data,status,headers,config){
               console.log('ajax success:'+uri);
@@ -405,14 +414,16 @@ function maybe(item,message) {
               return {error:status};
           });
       }
-      $scope.getUrl= function(subPath,force){ //force is for full custom paths
+
+      $scope.getUrlStatus= function(subPath,force){ //force is for full custom paths
         
-        if(subPath && subPath.length>0 && ($scope.validcase() && $scope.sandbox && !ajaxResults[subPath] && $scope.machineBasePath) || force)
+        if(subPath && subPath.length>0 && ($scope.validcase() && $scope.globals.sandbox && !ajaxResults[subPath] && $scope.machineBasePath) || force)
         {
           ajaxResults[subPath]=ajaxResults.empty;
-          var targetUrl="http://"+$scope.nodeHost+"/urlstatus?host="+$scope.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
+          var targetUrl="http://"+$scope.globals.nodeHost+"/urlstatus?host="+$scope.globals.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
           //console.log("getting status of "+targetUrl);
-          $http.get(targetUrl)
+         
+            $http.get(targetUrl)
             .success(function(data,status,headers,config){
               console.log('ajax success:'+JSON.stringify(data)+":"+targetUrl);
               ajaxResults[subPath]='<span class="success">'+data+'</span>';
@@ -420,39 +431,45 @@ function maybe(item,message) {
               console.log('ajax failure');
               ajaxResults[subPath]='<span class="error" title="'+subPath+'"">error:'+status+' </span>';
           });
-  
+          
         }
         return ajaxResults[subPath];
       };
 
-      $scope.$watch('[sandbox,case]',Cowboy.throttle( 350,  function(){
+      $scope.$watch('[globals.sandbox,case]',Cowboy.throttle( 350,  function(){
         ajaxResults={empty:'<span class="case">Loading...?</span>'};
       }),true);
       
-      var setLocal=function(name,defaultVal){
-        if(window.localStorage){
-          if(!$scope[name]){
-            var stored=localStorage.getItem(name);
-            if(stored){
-              //console.log('found stored:'+name);
-              $scope[name]=stored;
-            } else{
-              $scope[name]=defaultVal;
-            }
+      var setLocal=function(name,defaultVal,isGlobal){
+        if(!window.localStorage)
+          return;
+        var target= isGlobal?$scope.globals:$scope;
+        var stored=localStorage.getItem(name);
+        if(!target[name] || stored){
+          
+          if(stored){
+              target[name]=stored;  
+            //console.log('found stored:'+name);
+            
+          } else{
+            target[name]=defaultVal;  
           }
-
-          $scope.$watch(name,function(){
-            $timeout(function(){ if($scope[name]){
-              localStorage.setItem(name,$scope[name]);
-            } else {
-              localStorage.removeItem(name);
-            }},500);
-           
-          });
         }
+        
+        $scope.$watch((isGlobal?'globals.':'')+name,function(){
+          $timeout(function(){
+             if(target[name]){
+              console.log('storing '+name+' as '+target[name]);
+            localStorage.setItem(name,target[name]);
+          } else {
+            localStorage.removeItem(name);
+          }},500);
+         
+        });
+        
       };
       setLocal('case');
-      setLocal('sandbox');
+      setLocal('sandbox',undefined,true);
       setLocal('customer');
       setLocal('dev');
       setLocal('codebase');
@@ -461,7 +478,6 @@ function maybe(item,message) {
       setLocal('machineBasePath','c$\\MFWebContent\\Cases\\');
     };
     </script>
-    <script src="jquery.ba-throttle-debounce.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+   
   </body>
 </html>
