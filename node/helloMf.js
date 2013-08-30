@@ -29,6 +29,7 @@ app.use(app.router);
 app.options('*',function(req,res,next){
 	res.send(200);
 	res.end();
+	//next();
 });
 app.get('*.js',function(req,res){
 	var reqPath= url.parse(req.path);
@@ -42,19 +43,27 @@ app.get('*.js',function(req,res){
 });
 app.get('/', function(req, res){
 	var path= "..\\publish.ang.htm";
-	fs.readFile(path,function(err,data){
-		res.type('html');
-		res.send(data);
-		res.end();
+	return fs.readFile(path,function(err,data){
+		if(err){
+			res.writeHead(500);
+			res.write(err);
+			res.end();
+		} else {
+			res.type('html');
+			res.send(data);	
+			res.end();
+		}
+		
+		
 	});
 });
 app.get('/parsed.config',function(req,res){
 	//take an xml file and return json
 	//https://github.com/Leonidas-from-XIV/node-xml2js
-	console.log('getting parsed config!');
-	var path="\\\\"+req.query.host+"\\"+req.query.base+"\\"+req.query.path;
 	
-	fs.readFile(path,function(err,data){
+	var path="\\\\"+req.query.host+"\\"+req.query.base+"\\"+req.query.path;
+	console.log('getting parsed config:'+path);
+	return fs.readFile(path,function(err,data){
 		if(err){
 			console.log('readFile error:'+err);
 			res.send(err);
@@ -63,9 +72,17 @@ app.get('/parsed.config',function(req,res){
 		}
 		var parser = new xml2js.Parser();
 		
-			parser.parseString(data,function(err,result){
+		return parser.parseString(data,function(err,result){
+				console.log('parsed?'+err);
+
+				if(err){
+						res.send(data);
+						res.end();
+						return;
+				}
 				res.send(result);
 				res.end();
+				return;
 			});
 		
 		

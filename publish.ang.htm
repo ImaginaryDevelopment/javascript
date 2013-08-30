@@ -56,7 +56,7 @@
         <label>customer</label>
         <input ng-model="customer" placeholder="Homestreet"/>
         <label>case</label> <input type="checkbox" title="standard?" ng-model="isStandard" />
-        <input ng-model="case" placeholder="76700" />
+        <input ng-model="globals.mfCase" placeholder="76700" />
         <div>
           <label>relativePathToWebSiteBase</label>
           <input ng-model="machineBasePath" placeholder="c$\MFWebContent\Cases\" /> <span class="clickable" ng-click="machineBasePath='c$\\MFWebContent\\Cases\\';">Use MFWebContent</span> <span class="clickable" ng-click="machineBasePath='C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\';">Use local</span>
@@ -183,17 +183,17 @@
           </thead>
           <tbody>
             <tr ng-repeat="svc in services">
-              <td><a href="http://{{globals.nodeHost}}/web.config?host={{globals.sandbox}}&base={{machineBasePath}}{{case}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
-              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host='+globals.sandbox+'&base='+machineBasePath+case+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
+              <td><a href="http://{{globals.nodeHost}}/web.config?host={{globals.sandbox}}&base={{machineBasePath}}{{globals.mfCase}}&path={{svc.dir}}Web.config">{{svc.name}}</a></td>
+              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host='+globals.sandbox+'&base='+machineBasePath+globals.mfCase+'&path='+svc.dir+'Web.config',svc);">Refresh</button>
               </td>
               <td>{{svc.getDefaultDatabase(false,true)}}</td>
               <td title="{{svc.getConnectionString()}}">{{svc.getConnectionString(false,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.remoteClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul></td>
 
             </tr>
-             <tr ng-repeat="svc in services">
-              <td><a href="http://{{globals.nodeHost}}/web.config?host=localhost&base={{globals.localpath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
-              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host=localhost&base='+globals.localpath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
+             <tr data-role="local service" ng-repeat="svc in services">
+              <td><a href="http://{{globals.nodeHost}}/web.config?host=localhost&base={{globals.localPath}}&path={{svc.dir}}Web.config">{{svc.name}}(local)</a></td>
+              <td><button ng-click="getSvcJson('http://'+globals.nodeHost+'/parsed.config?host=localhost&base='+globals.localPath+'&path='+svc.dir+'Web.config',svc,true);">Refresh</button></td>
               <td>{{svc.getDefaultDatabase(true,true)}}</td>
               <td title="{{svc.getConnectionString(true)}}">{{svc.getConnectionString(true,'connectionString')}}</td>
               <td><ul><li ng-repeat="slClient in svc.localClients"><span ng-show="!slClient.name">{{slClient}}</span><span ng-show="!!slClient.name"><a href="{{slClient.address}}">{{slClient.name}}</a></span></li></ul>
@@ -204,279 +204,39 @@
 
         </div>
       </div>
-      <div data-role="deploy diagnostics" ng-show="tab ==6">
-        \\{{globals.sandbox}}\{{machineBasePath}}{{case}}\LoanQuestNETDeploy\
-        <button ng-click="getJson()">Refresh</button>
+      <div data-role="deploy diagnostics" ng-show="tab ==6" ng-controller="DeployCtrl">
+        \\<span class="sandbox">{{globals.sandbox}}</span>\{{machineBasePath}}<span class="case">{{globals.mfCase}}</span>\LoanQuestNETDeploy\Mortgageflex.LoanQuest.application
+        <button ng-click="getManifest(globals.sandbox,globals.machineBasePath,globals.mfCase+'\\LoanQuestNETDeploy\\Mortgageflex.LoanQuest.application')">Refresh</button>
+        <ul ng-show="success">
+          <li title="name"><span class="value">{{assemblyIdentityName}}</span></li>
+          <li title="version">{{version}}</li>
+          <li ng-show="codebase"><a href="{{codebase}}">{{codebase}}</a></li>
+          <li ng-show="configSuccess">
+            Config
+            <ul>
+              <li ng-repeat="ep in endpoints">{{ep}}</li>
+              <li ng-repeat="ep in endpoints"><span ng-show="!ep.name">{{slClient}}</span><span ng-show="!!ep.name"><a href="{{ep.address}}">{{ep.name}}</a></span> - {{ep.address}}</li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
+    <script src="bReusable.js"></script>
+    <script src="node/angular_modules/publishCtrl.js"></script>
+    <script src="node/angular_modules/deployCtrl.js"></script>
      <script src="jquery.ba-throttle-debounce.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+
     <script>
-  
- function type(obj) {
-    var obj_type = typeof obj;
-    return ({
-        is: function (type) {
-            return obj_type === type;
-        },
-        is_object: function () {
-            return obj_type === "object";
-        },
-        is_func: function () {
-            return obj_type === "function";
-        },
-        is_string: function () {
-            return obj_type === "string";
-        }
-    });
-};
-
-function maybe(item,message) {
-    var _message=message;
-    return ({
-        result: function (accessor, __default) {
-            if (!item) return type(accessor).is_func() ? __default : accessor;
-            else return type(accessor).is_func() ? accessor(item) : item;
-        },message:message,
-        _: function (accessor,message) {
-            if (!item) return maybe(null,_message);
-            if (!accessor && type(item).is_func()) {
-
-                return maybe(item(),message);
-            }
-            if (type(accessor).is_string()) {
-                if (item.hasOwnProperty(accessor)) return maybe(item[accessor],message);
-                var result = item[accessor];
-                if (result) return maybe(item[accessor].call(item),message);
-
-                return maybe(result,message);
-            }
-            if (type(accessor).is_func()) {
-
-                return maybe(accessor(item),message);
-            }
-
-            return maybe(item[accessor],message);
-        }
-    });
-};
-    //https://github.com/knockout/knockout/blob/master/src/utils.js
-    
-    if(!Array.prototype.arrayFirst){
-      Array.prototype.arrayFirst=function (predicate, predicateOwner) {
-            var array= this || [];
-            for (var i = 0, j = array.length; i < j; i++)
-                if (predicate.call(predicateOwner, array[i]))
-                    return array[i];
-            return null;
-        };
-    }
-    if(!Array.prototype.arrayMap){
-      Array.prototype.arrayMap=function (mapping) {
-            var array = this || [];
-            var result = [];
-            for (var i = 0, j = array.length; i < j; i++)
-                result.push(mapping(array[i]));
-            return result;
-        };
-    }
-    var app = angular.module('myApp',[])
+    //https://developers.google.com/speed/libraries/devguide?
+var app = angular.module('myApp',[])
     .factory('globals',function(){
-      var result={nodeHost:"mf1374-prog1.mortgageflex.com:81",localPath:"C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\",sandbox:"vBcdApp1"};
+      var result={nodeHost:"mf1374-prog1.mortgageflex.com:81",localPath:"C$\\Microsoft .Net 3.5 Framework\\Mortgageflex products\\Common Framework\\Host\\",sandbox:"vBcdApp1",mfCase:'77494',machineBasePath:'c$\\MFWebContent\\Cases\\'};
       window.globals=result;
       return result;
     });
-
     
-    var Service = function(name,path,svc,notes){
-        var self=this;
-        this.name=name;
-        this.path=path;
-        this.svc=svc;
-        this.notes=notes;
-        this.dir="\\"+path.replace("/","\\")+"\\";
-        this.url="/"+path.replace("\\","/")+"/"+svc;
-
-        
-        var getConfig=function(local){
-          var parsed= local? self.parsedlocal:self.parsed;
-          return parsed;
-        };
-
-        this.getDefaultDatabase= function(local,returnError){
-          var parsed=getConfig(local);
-
-          var dd=maybe(parsed,"not attempted")
-            ._('configuration',"no configuration")
-            ._('dataConfiguration',"no dataConfiguration")
-            ._(0,"empty dataConfiguration")
-            ._('$',"invalid dataConfiguration")
-            ._('defaultDatabase',"no default database");
-          var result= dd.result();
-          if(!result && returnError)
-            return dd.message;
-          return result;
-        };
-        this.getConnectionString=function(local,propName){
-          var dd= self.getDefaultDatabase(local);
-          if(!dd)
-            return;
-          var parsed=local? self.parsedlocal:self.parsed;
-          var connectionStringsJs= parsed.configuration.connectionStrings[0].add;
-          if(!connectionStringsJs)
-            return;
-          var connectionStrings= connectionStringsJs.arrayMap(function(e){return e.$;});
-          var cs=connectionStrings.arrayFirst(function(e){return e.name && e.name==dd;});
-          return propName?cs[propName]:cs;
-        };
-        
-        var getClients=function(local){
-          var parsed=getConfig(local);
-          var eps= maybe(parsed,"not attempted")
-            ._('configuration',"no configuration")
-            ._('system.serviceModel',"no serviceModel")
-            ._(0,"empty serviceModel")
-            ._('client',"no clients")
-            ._(0,"empty clients")
-            ._('endpoint',"no endpoints");
-            var result=eps.result();
-            if(!result)
-          return [eps.message];
-
-          var clients = result
-            .arrayMap(function(a){
-                return {name:a.$.name,address:a.$.address};
-            });
-
-          return clients;
-        };
-         this.localClients=getClients(true);
-        this.remoteClients=getClients(false);
-        this.onLocalChanged=function(){
-            self.localClients=getClients(true);
-        };
-        this.onRemoteChanged=function(){
-          self.remoteClients=getClients(false);
-        };
-      };
-    var PublishCtrl=function($scope,$http,$timeout,globals){
-      window.publishCtrl=$scope;
-      $scope.globals=globals;
-      $scope.sandbox=$scope.globals.sandbox;
-      $scope.services = [
-        new Service("Wcf Portal","Mortgageflex.Services.Host.LoanQuest","WcfPortal.svc"),
-        new Service("Registration Portal","Mortgageflex.Services.Host.Registration","WcfPortal.svc"),
-        new Service("Program Pricing","Mortgageflex.Services.Host.ProgramPricing","ProgramPricingService.svc"),
-        new Service("Data Lookup","DataLookupService","DataLookupService.svc","path depth issues"),
-        new Service("DocumentPrintingService","Mortgageflex.Services.Host.PrintingService","DocumentPrintingService.svc"),
-        ];
-      $scope.displayCase= function(){
-        if($scope.case){
-          return $scope.case;
-        }
-        return "______";
-      }
-      $scope.displaySandbox=function(){
-        if($scope.globals.sandbox){
-          return $scope.globals.sandbox;
-        }
-        return "v___App_";
-      }
-      $scope.caseUrl= function(){
-          return 'http://'+$scope.displaySandbox()+'.mortgageflex.com/'+$scope.displayCase();
-      };
-      $scope.environmentName= function(){
-        return $scope.customer ? $scope.customer + '-Cust' : 'Standard-';
-      };
-      $scope.validcase=function(){
-        return $scope.case && ($scope.case.length==5 || $scope.isStandard);
-      }
-      $scope.deployUrl=function(){
-        return '/LoanQuestNETDeploy/publish.htm';
-      };
-      var ajaxResults={empty:'<span>No data</span>'};
-
-      $scope.getSvcJson= function(uri,svc,local){
-        return $http.get(uri)
-            .success(function(data,status,headers,config){
-              console.log('ajax success:'+uri);
-              window.parsed= data;
-              if(local){
-                svc.parsedlocal=data;
-                svc.onLocalChanged();
-              } else {
-                svc.parsed=data;  
-                svc.onRemoteChanged();
-              }
-              
-            }).error(function(data,status,headers,config){
-              console.log('ajax failure');
-              return {error:status};
-          });
-      }
-
-      $scope.getUrlStatus= function(subPath,force){ //force is for full custom paths
-        
-        if(subPath && subPath.length>0 && ($scope.validcase() && $scope.globals.sandbox && !ajaxResults[subPath] && $scope.machineBasePath) || force)
-        {
-          ajaxResults[subPath]=ajaxResults.empty;
-          var targetUrl="http://"+$scope.globals.nodeHost+"/urlstatus?host="+$scope.globals.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
-          //console.log("getting status of "+targetUrl);
-         
-            $http.get(targetUrl)
-            .success(function(data,status,headers,config){
-              console.log('ajax success:'+JSON.stringify(data)+":"+targetUrl);
-              ajaxResults[subPath]='<span class="success">'+data+'</span>';
-            }).error(function(data,status,headers,config){
-              console.log('ajax failure');
-              ajaxResults[subPath]='<span class="error" title="'+subPath+'"">error:'+status+' </span>';
-          });
-          
-        }
-        return ajaxResults[subPath];
-      };
-
-      $scope.$watch('[globals.sandbox,case]',Cowboy.throttle( 350,  function(){
-        ajaxResults={empty:'<span class="case">Loading...?</span>'};
-      }),true);
-      
-      var setLocal=function(name,defaultVal,isGlobal){
-        if(!window.localStorage)
-          return;
-        var target= isGlobal?$scope.globals:$scope;
-        var stored=localStorage.getItem(name);
-        if(!target[name] || stored){
-          
-          if(stored){
-              target[name]=stored;  
-            //console.log('found stored:'+name);
-            
-          } else{
-            target[name]=defaultVal;  
-          }
-        }
-        
-        $scope.$watch((isGlobal?'globals.':'')+name,function(){
-          $timeout(function(){
-             if(target[name]){
-              console.log('storing '+name+' as '+target[name]);
-            localStorage.setItem(name,target[name]);
-          } else {
-            localStorage.removeItem(name);
-          }},500);
-         
-        });
-        
-      };
-      setLocal('case');
-      setLocal('sandbox',undefined,true);
-      setLocal('customer');
-      setLocal('dev');
-      setLocal('codebase');
-      setLocal('isStandard');
-      setLocal('lights',false);
-      setLocal('machineBasePath','c$\\MFWebContent\\Cases\\');
-    };
     </script>
    
   </body>
