@@ -36,6 +36,26 @@
             //this one is parsing to JSON properly
             $scope.exeConfig=data;
             $scope.endpoints = getClients(data);// endpoints.result()? endpoints.result():[endpoints.message];
+            var result=maybe(data,'not attempted')
+              ._('configuration','no configuration')
+              ._('loggingConfiguration','no loggingConfiguration')
+              ._(0,'empty loggingConfiguration')
+              ._('listeners','no listeners')
+              ._(0,'empty listeners')
+              ._('add','no add')
+              ._(function(a){ return a.arrayFirst(function(add){
+                return add.$ && add.$.fromAddress;
+              });},'no matching add')
+              ._('$','invalid add');
+              if(result.result())
+              {
+                $scope.fromAdd= result.result().fromAddress;
+                $scope.toAdd=result.result().toAddress;
+              } else {
+                console.log(result.message);
+              }
+              
+            
             console.log(data);
           },
           function(){

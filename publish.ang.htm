@@ -214,6 +214,8 @@
           <li ng-show="configSuccess">
             Config
             <ul>
+              <li ng-show="fromAdd">{{fromAdd}}</li>
+              <li ng-show="toAdd">{{toAdd}}</li>
               <li ng-repeat="ep in endpoints">{{ep}}</li>
               <li ng-repeat="ep in endpoints"><span ng-show="!ep.name">{{slClient}}</span><span ng-show="!!ep.name"><a href="{{ep.address}}">{{ep.name}}</a></span> - {{ep.address}}</li>
             </ul>
