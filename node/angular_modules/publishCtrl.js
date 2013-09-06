@@ -140,7 +140,7 @@ var PublishCtrl=function($scope,$http,$timeout,globals){
     	if(subPath && subPath.length>0 && ($scope.validcase() && $scope.globals.sandbox && !ajaxResults[subPath] && $scope.machineBasePath) || force)
         {
           ajaxResults[subPath]=ajaxResults.empty;
-          var targetUrl="http://"+$scope.globals.nodeHost+"/urlstatus?host="+$scope.globals.sandbox+".mortgageflex.com&path=/"+$scope.case+subPath;
+          var targetUrl="http://"+$scope.globals.nodeHost+"/urlstatus?host="+$scope.globals.sandbox+".mortgageflex.com&path=/"+$scope.globals.mfCase+subPath;
           //console.log("getting status of "+targetUrl);
             $http.get(targetUrl)
             .success(function(data,status,headers,config){
