@@ -12,37 +12,39 @@ var everyPageTests = function(test, expectedUrl, actualUrl) {
 		currentUrl = actualUrl;
 	}
 
-	test.assertTextDoesntExist('Server Error', 'server error in '+currentUrl);
+	test.assertTextDoesntExist('Server Error', 'searched for server error in ' + currentUrl);
 };
 var testSite = function(base) {
-	casper.test.begin(base.name, 5, function suite(test) {
+	casper.test.begin(base.name, 18, function suite(test) {
 
 
 		casper.start(base.host, function() {
 			var getCurrentUrl = casper.getCurrentUrl();
-			everyPageTests(test, base.host, getCurrentUrl);
+			everyPageTests(test, base.host+'/', getCurrentUrl);
 			test.assertTitle("Select a panel", "homepage title is the one expected");
 
 			/*this.fill('form[action="/search"]', {
             q: "casperjs"
         }, true); */
 		});
-		var testOpenPage = function(url, test) {
+		var testOpenPage = function(test, url, otherTests) {
 			casper.thenOpen(url, function() {
 				var currentUrl = casper.getCurrentUrl();
 				everyPageTests(test, url, currentUrl);
+				if (otherTests) {
+					otherTests(test, url);
+				}
 			});
 		};
-
-		var urlTarget = base.host + '/surveys/';
-		casper.thenOpen(urlTarget, function() {
-			var getCurrentUrl = casper.getCurrentUrl();
-			everyPageTests(test, urlTarget, getCurrentUrl);
+		var testPages = ['surveys/history', 'surveys/polls', 'profiles', 'rewards','rewards/sweepstakes'];
+		for (var i = testPages.length - 1; i >= 0; i--) {
+			testOpenPage(test, base.host +'/'+ testPages[i]+'/');
+		};
+		testOpenPage(test,base.host+'/surveys/',function(test,url){
 			test.assertExists('.site-img-logo', "main logo is found");
 		});
-		testOpenPage(base.host + '/surveys/history/', test);
-		testOpenPage(base.host+'/surveys/polls/',test);
-		testOpenPage(base.host+'/profiles/',test);
+		
+
 		/*
 		casper.thenOpen(base.host + '/Surveys/Polls', function() {
 			var getCurrentUrl = getCurrentUrl();
