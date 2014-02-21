@@ -85,21 +85,6 @@ exports.config = {
     // will be available. For example, you can add a Jasmine reporter with:
     //     jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter(
     //         'outputdir/', true, true));
-    //http://stackoverflow.com/questions/7157999/output-jasmine-test-results-to-the-console
-    if (typeof(jasmine.ConsoleReporter) !== "undefined") {
-      jasmine.getEnv().addReporter(new jasmine.ConsoleReporter(console.log));
-    } else if (typeof(jasmineRequire) !== "undefined") {
-      var ConsoleReporter = jasmineRequire.ConsoleReporter();
-      var options = {
-        timer: new jasmine.Timer,
-        print: function() {
-          console.log.apply(console, arguments)
-        }
-      };
-      consoleReporter = new ConsoleReporter(options); // initialize ConsoleReporter
-      env.addReporter(consoleReporter); //add reporter to execution environment
-    }
-
   },
 
   // The params object will be passed directly to the protractor instance,
@@ -120,7 +105,7 @@ exports.config = {
   // Mocha has limited beta support. You will need to include your own
   // assertion framework if working with mocha.
   framework: 'jasmine',
-
+  
   // ----- Options to be passed to minijasminenode -----
   //
   // See the full list at https://github.com/juliemr/minijasminenode
@@ -128,7 +113,7 @@ exports.config = {
     // onComplete will be called just before the driver quits.
     onComplete: null,
     // If true, display spec names.
-    isVerbose: false,
+    isVerbose: true,
     // If true, print colors to the terminal.
     showColors: true,
     // If true, include stack traces in failures.

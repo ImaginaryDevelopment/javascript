@@ -11,16 +11,17 @@ var everyPageTests = function(test, expectedUrl, actualUrl) {
 	if (expectedUrl === actualUrl) {
 		currentUrl = actualUrl;
 	}
-
-	test.assertTextDoesntExist('Server Error', 'searched for server error in ' + currentUrl);
+	test.assertNotEquals(actualUrl,'about:blank');
+	test.assertTextDoesntExist('Server Error', 'searched for server error in ' + currentUrl); //TODO:  capture source File line
 };
 var testSite = function(base) {
-	casper.test.begin(base.name, 18, function suite(test) {
+	var testPages = ['home/about','surveys/history', 'surveys/polls',  'rewards','rewards/sweepstakes','Reviews','profiles'];
+	casper.test.begin(base.name, function suite(test) {
 
 
 		casper.start(base.host, function() {
-			var getCurrentUrl = casper.getCurrentUrl();
-			everyPageTests(test, base.host+'/', getCurrentUrl);
+			var currentUrl = casper.getCurrentUrl();
+			everyPageTests(test, base.host + '/', currentUrl);
 			test.assertTitle("Select a panel", "homepage title is the one expected");
 
 			/*this.fill('form[action="/search"]', {
@@ -36,25 +37,14 @@ var testSite = function(base) {
 				}
 			});
 		};
-		var testPages = ['surveys/history', 'surveys/polls', 'profiles', 'rewards','rewards/sweepstakes'];
+		
 		for (var i = testPages.length - 1; i >= 0; i--) {
-			testOpenPage(test, base.host +'/'+ testPages[i]+'/');
+			testOpenPage(test, base.host + '/' + testPages[i] + '/');
 		};
-		testOpenPage(test,base.host+'/surveys/',function(test,url){
+		testOpenPage(test, base.host + '/surveys/', function(test, url) {
 			test.assertExists('.site-img-logo', "main logo is found");
 		});
-		
 
-		/*
-		casper.thenOpen(base.host + '/Surveys/Polls', function() {
-			var getCurrentUrl = getCurrentUrl();
-			everyPageTests(test, getCurrentUrl);
-		})
-		casper.thenOpen(base.host + '/profiles', function() {
-			var getCurrentUrl = getCurrentUrl();
-			everyPageTests(test, getCurrentUrl);
-		});
-*/
 		/*
 	casper.then(function() {
 
@@ -68,14 +58,3 @@ var testSite = function(base) {
 for (var i = bases.length - 1; i >= 0; i--) {
 	testSite(bases[i]);
 };
-
-/*
-casper.test.begin('another site', 1, function suite(test) {
-	casper.start(bases[1].host, function() {
-		everyPageTests(test);
-	})
-	casper.run(function() {
-		test.done();
-	});
-});
-*/
