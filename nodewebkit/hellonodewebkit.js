@@ -44,9 +44,7 @@ String.prototype.before = function(delimiter) {
 	return this.substring(0, this.indexOf(delimiter));
 };
 String.prototype.splitLines = String.prototype.splitLines || function() {
-
 	return this.match(/[^\r\n]+/g);
-
 };
 var groupLinesBy = function(strings, delimiter) {
 	var result = [];
@@ -70,36 +68,43 @@ var groupLinesBy = function(strings, delimiter) {
 	return result;
 };
 var HellonodewebkitCtrl = function($scope) {
-	$scope.stdout = '';
-	$scope.stderr = '';
-	$scope.helloangular = 'hello angular!';
-	window.$scope = $scope;
-	
-	
-	
-	$scope.sc = function() {
-		var sc = 'sc';
-		var processScOutput = function(data) {
-		//process all data that came out while the program was running
-		//return text.Split(new string[] {"\r\n","\n"}, StringSplitOptions.None);
-		var grouped = groupLinesBy(Enumerable.From($scope.stdout.splitLines()).ToArray(), "SERVICE_NAME");
-		console.log('grouped:' + grouped);
-		var shaped = Enumerable.From(grouped).Select(function(x) {
-			console.log('in select x is:');
-			console.log(x);
-			return {
-				serviceName: x[0].after(':'),
-				displayName: x[1].after(':'),
-				state: x[3].after(':') + x[4],
-				type: x[2].after(':'),
-				unmapped: x[5].after(':')
-			};
-		}).ToArray();
-		console.log('shaped:' + shaped);
-		$scope.grouped = shaped;
-	};
 
-		$scope.child = spawn(sc, ['query'], function(data) {
+	window.$scope = $scope;
+
+
+
+	$scope.sc = function() {
+		$scope.stdout = '';
+		$scope.stderr = '';
+		$scope.host= !$scope.server || $scope.server==="localhost"? null:$scope.server;
+		var sc = 'sc';
+		delete $scope.grouped;
+		delete $scope.pid;
+		var processScOutput = function(data) {
+			//process all data that came out while the program was running
+			
+			var grouped = groupLinesBy(Enumerable.From($scope.stdout.splitLines()).ToArray(), "SERVICE_NAME");
+			//console.log('grouped:' + grouped);
+			var shaped = Enumerable.From(grouped).Select(function(x) {
+				console.log('in select x is:');
+				console.log(x);
+				return {
+					serviceName: x[0].after(':'),
+					displayName: x[1].after(':'),
+					state: x[3].after(':') + x[4],
+					type: x[2].after(':'),
+					unmapped: x[5].after(':')
+				};
+			}).ToArray();
+			//console.log('shaped:' + shaped);
+			$scope.grouped = shaped;
+		};
+		var args=[];
+		if($scope.host){
+			args.push('\\\\'+$scope.host);
+		}
+		args.push('query');
+		$scope.child = spawn(sc,args, function(data) {
 
 			$scope.$apply(function() {
 				$scope.stdout += data;

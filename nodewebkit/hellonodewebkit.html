@@ -1,20 +1,21 @@
 <html>
 <head> 
- 	<title> Hello node - webkit </title>
+ 	<title>Developer Configuration Manager</title>
+ 	<link rel="stylesheet" href="style.css"/>
 </head>
      <body data-ng-app data-ng-controller="HellonodewebkitCtrl">
-      <h1> hi! </h1>
+      
 
       <input type="text" data-ng-init="server='localhost'" data-ng-model="server" placeholder="localhost"/>
       <button data-ng-click="sc()">Refresh</button>
-      {{helloangular}}
+      
       	<table>
       		<thead>
       			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>Unmapped</th></tr>
       		</thead>
       		<tbody>
       		<tr data-ng-repeat="line in grouped track by $index">
-      			<td>{{line.serviceName}}</td>
+      			<td class="special">{{line.serviceName}}</td>
       			<td>{{line.displayName}}</td>
       			<td>{{line.type}}</td>
       			<td>{{line.state}}</td>
@@ -22,12 +23,16 @@
       			<!--<td>{{line}}</td> -->
       		</tr>
       	</tbody>
+      	<tfoot>
+      		<tr>
+      			<td>Count: {{grouped.length}}</td>
+      		</tr>
+      	</tfoot>
       	</table>
         Node webkit version:<script>document.write(process.versions['node-webkit']);</script>
-        Pid is {{pid}}
-        Exit code is {{exitCode}}
-        <p>{{stdout}}</p>
-        <p>{{stderr}}</p>
+        <span data-ng-show="!!child">Pid <span data-ng-show="typeof(exitCode)==='undefined'">is</span><span data-ng-show="typeof(exitCode)!=='undefined'">was</span> {{pid}}  Exit code is {{exitCode}}</span>
+        <!--<p>{{stdout}}</p> -->
+        <p>{{stderr}}</p> 
         <script src="linq.js"></script>
         <script src="angular.min.js"></script>
         <script src="hellonodewebkit.js"></script>

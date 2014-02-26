@@ -1,3 +1,4 @@
 karma/js/
 karma/node_modules/
 nodewebkit/angular.min.js
+nodewebkit/linq.js
