@@ -1,3 +1,9 @@
-.special{
-	color: rgb(100,100,100);
+.iis{
+	color: rgb(0,0,255);
+}
+.running{
+	color: rgb(0,128,0);
+}
+.stopped{
+	color:rgb(255,0,0);
 }

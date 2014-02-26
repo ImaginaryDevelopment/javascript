@@ -8,17 +8,18 @@
 
       <input type="text" data-ng-init="server='localhost'" data-ng-model="server" placeholder="localhost"/>
       <button data-ng-click="sc()">Refresh</button>
-      
+      <p>{{cmd}}</p>
       	<table>
       		<thead>
-      			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>Unmapped</th></tr>
+      			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>pid</th><th>Unmapped</th></tr>
       		</thead>
       		<tbody>
       		<tr data-ng-repeat="line in grouped track by $index">
-      			<td class="special">{{line.serviceName}}</td>
+      			<td data-ng-class="line.css">{{line.serviceName}}</td>
       			<td>{{line.displayName}}</td>
       			<td>{{line.type}}</td>
-      			<td>{{line.state}}</td>
+      			<td data-ng-class="line.stateCss">{{line.state}}</td>
+            <td>{{line.pid}}</td>
 				<td>{{line.unmapped}}</td>
       			<!--<td>{{line}}</td> -->
       		</tr>
