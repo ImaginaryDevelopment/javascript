@@ -1,8 +1,11 @@
 <html>
-    <head>
-        <title>Hello node-webkit</title>
-    </head>
-    <body>
-        <h1> hi!</h1>
-    </body>
+<head> 
+ 	<title> Hello node - webkit </title>
+</head>
+     <body data-ng-app data-ng-ctrl="HellonodewebkitCtrl">
+      <h1> hi! </h1>
+        Node webkit version:<script>document.write(process.versions['node-webkit']);</script>
+        <script src="angular.min.js"></script>
+        <script src="hellonodewebkit.js"></script>
+</body>
 </html>
