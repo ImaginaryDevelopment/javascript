@@ -14,10 +14,12 @@ var exec = function(cmd, args, callback) {
 	return result;
 };
 
-var spawn = function(cmd, args, fnStdOut, fnStdErr) {
+var spawn = function(cmd, args, fnStdOut, fnStdErr, onExit) {
 	var result = child_process.spawn(cmd, args);
 	result.on('exit', function(code) {
 		console.log('child process exited with code ' + code);
+		if (onExit)
+			onExit(code);
 	});
 	result.stdout.on('data', fnStdOut);
 	result.stderr.on('data', fnStdErr);
@@ -35,27 +37,88 @@ var logExec = function(error, stdout, stderr) {
 	if (stderr)
 		console.log('stderr:' + stderr);
 };
+String.prototype.after = function(delimiter) {
+	return this.substring(this.indexOf(delimiter) + delimiter.length);
+};
+String.prototype.before = function(delimiter) {
+	return this.substring(0, this.indexOf(delimiter));
+};
+String.prototype.splitLines = String.prototype.splitLines || function() {
+
+	return this.match(/[^\r\n]+/g);
+
+};
+var groupLinesBy = function(strings, delimiter) {
+	var result = [];
+	var current = [];
+	for (var i = 0; i < strings.length; i++) {
+		if (!current || current.length === 0) {
+			current.push(strings[i]);
+		} else if (strings[i].indexOf(delimiter) >= 0) {
+			if (current.length > 0) {
+				result.push(current);
+				current = [strings[i]];
+			} else {
+				current.push(strings[i]);
+			}
+		} else {
+			current.push(strings[i]);
+		}
+	}
+	if (current.length > 0)
+		result.push(current);
+	return result;
+};
 var HellonodewebkitCtrl = function($scope) {
 	$scope.stdout = '';
 	$scope.stderr = '';
 	$scope.helloangular = 'hello angular!';
 	window.$scope = $scope;
+	
+	
+	
+	$scope.sc = function() {
+		var sc = 'sc';
+		var processScOutput = function(data) {
+		//process all data that came out while the program was running
+		//return text.Split(new string[] {"\r\n","\n"}, StringSplitOptions.None);
+		var grouped = groupLinesBy(Enumerable.From($scope.stdout.splitLines()).ToArray(), "SERVICE_NAME");
+		console.log('grouped:' + grouped);
+		var shaped = Enumerable.From(grouped).Select(function(x) {
+			console.log('in select x is:');
+			console.log(x);
+			return {
+				serviceName: x[0].after(':'),
+				displayName: x[1].after(':'),
+				state: x[3].after(':') + x[4],
+				type: x[2].after(':'),
+				unmapped: x[5].after(':')
+			};
+		}).ToArray();
+		console.log('shaped:' + shaped);
+		$scope.grouped = shaped;
+	};
 
-	//var appcmdPath = path.join(winDir, 'System32', 'inetsrv', 'appcmd.exe');
-	var sc = 'sc';
-	var args;
-	$scope.child = spawn(sc, ['query'], function(data) {
-		logExec(null, data, null);
-		$scope.$apply(function(){
-			$scope.stdout+=data;
+		$scope.child = spawn(sc, ['query'], function(data) {
+
+			$scope.$apply(function() {
+				$scope.stdout += data;
+				console.log('data recieved');
+			});
+		}, function(data) {
+
+			$scope.$apply(function() {
+				$scope.stderr += data;
+			});
+		}, function(code) {
+			$scope.$apply(function() {
+				$scope.exitCode = code;
+				processScOutput();
+			});
 		});
-	}, function(data) {
-		logExec(null, null, data);
-		$scope.$apply(function(){
-			$scope.stderr+=data;
-		});
-	});
-	$scope.pid = $scope.child.pid;
+		$scope.pid = $scope.child.pid;
+	};
+
 
 
 };

@@ -4,11 +4,31 @@
 </head>
      <body data-ng-app data-ng-controller="HellonodewebkitCtrl">
       <h1> hi! </h1>
+
+      <input type="text" data-ng-init="server='localhost'" data-ng-model="server" placeholder="localhost"/>
+      <button data-ng-click="sc()">Refresh</button>
       {{helloangular}}
-      <p>{{stdout}}</p>
-        <p>{{stderr}}</p>
+      	<table>
+      		<thead>
+      			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>Unmapped</th></tr>
+      		</thead>
+      		<tbody>
+      		<tr data-ng-repeat="line in grouped track by $index">
+      			<td>{{line.serviceName}}</td>
+      			<td>{{line.displayName}}</td>
+      			<td>{{line.type}}</td>
+      			<td>{{line.state}}</td>
+				<td>{{line.unmapped}}</td>
+      			<!--<td>{{line}}</td> -->
+      		</tr>
+      	</tbody>
+      	</table>
         Node webkit version:<script>document.write(process.versions['node-webkit']);</script>
         Pid is {{pid}}
+        Exit code is {{exitCode}}
+        <p>{{stdout}}</p>
+        <p>{{stderr}}</p>
+        <script src="linq.js"></script>
         <script src="angular.min.js"></script>
         <script src="hellonodewebkit.js"></script>
 </body>
