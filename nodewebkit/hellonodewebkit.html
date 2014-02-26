@@ -2,9 +2,13 @@
 <head> 
  	<title> Hello node - webkit </title>
 </head>
-     <body data-ng-app data-ng-ctrl="HellonodewebkitCtrl">
+     <body data-ng-app data-ng-controller="HellonodewebkitCtrl">
       <h1> hi! </h1>
+      {{helloangular}}
+      <p>{{stdout}}</p>
+        <p>{{stderr}}</p>
         Node webkit version:<script>document.write(process.versions['node-webkit']);</script>
+        Pid is {{pid}}
         <script src="angular.min.js"></script>
         <script src="hellonodewebkit.js"></script>
 </body>

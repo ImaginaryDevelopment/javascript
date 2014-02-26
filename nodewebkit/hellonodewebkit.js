@@ -5,30 +5,57 @@ var fs = require('fs'),
 
 var cwd = process.cwd();
 var winDir = process.env.windir;
-var appcmdPath = path.join(winDir, 'System32', 'inetsrv', 'appcmd.exe');
-var args;
-var child;
-fs.exists(appcmdPath, function(exists) {
-	if (!exists)
-		return;
-	child = child_process.exec(appcmdPath,['list','app'], function(error, stdout, stderr) {
-		if (error) {
-			console.log(error.stack);
-			console.log('Error code: ' + error.code);
-			console.log('Signal received: ' +
-				error.signal);
-		}
-		console.log('Child Process stdout: ' + stdout);
-		console.log('Child Process stderr: ' + stderr);
-	});
-
-	child.on('exit', function(code) {
+var exec = function(cmd, args, callback) {
+	var result = child_process.exec(cmd, args, callback);
+	result.on('exit', function(code) {
 		console.log('Child process exited ' +
 			'with exit code ' + code);
 	});
+	return result;
+};
 
-});
+var spawn = function(cmd, args, fnStdOut, fnStdErr) {
+	var result = child_process.spawn(cmd, args);
+	result.on('exit', function(code) {
+		console.log('child process exited with code ' + code);
+	});
+	result.stdout.on('data', fnStdOut);
+	result.stderr.on('data', fnStdErr);
+	return result;
+};
+var logExec = function(error, stdout, stderr) {
+	if (error) {
+		console.log(error.stack);
+		console.log('Error code: ' + error.code);
+		console.log('Signal received: ' +
+			error.signal);
+	}
+	if (stdout)
+		console.log('stdout:' + stdout);
+	if (stderr)
+		console.log('stderr:' + stderr);
+};
+var HellonodewebkitCtrl = function($scope) {
+	$scope.stdout = '';
+	$scope.stderr = '';
+	$scope.helloangular = 'hello angular!';
+	window.$scope = $scope;
 
-var HellonodewebkitCtrl=function($scope){
-	
+	//var appcmdPath = path.join(winDir, 'System32', 'inetsrv', 'appcmd.exe');
+	var sc = 'sc';
+	var args;
+	$scope.child = spawn(sc, ['query'], function(data) {
+		logExec(null, data, null);
+		$scope.$apply(function(){
+			$scope.stdout+=data;
+		});
+	}, function(data) {
+		logExec(null, null, data);
+		$scope.$apply(function(){
+			$scope.stderr+=data;
+		});
+	});
+	$scope.pid = $scope.child.pid;
+
+
 };
