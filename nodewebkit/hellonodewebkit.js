@@ -104,6 +104,7 @@ var HellonodewebkitCtrl = function($scope) {
 
 			var grouped = groupLinesBy(Enumerable.From($scope.stdout.splitLines()).ToArray(), "SERVICE_NAME");
 			//console.log('grouped:' + grouped);
+			var IisServiceNames = ["WMSVC", "WAS", "W3SVC", "MsDepSvc", "WinRm", "msvsmon120"];
 			var shaped = Enumerable.From(grouped).Select(function(x) {
 				//console.log('in select x is:');
 				//console.log(x);
@@ -119,25 +120,35 @@ var HellonodewebkitCtrl = function($scope) {
 				};
 				if(/\sRUNNING\s/.test(item.state)){
 					item.stateCss="running";
-				} else if (/\sSTOPPED\S/.test(item.state)){
+				} else if (/\sSTOPPED\s/.test(item.state)){
 					item.stateCss="stopped";
+				} else if(/\sSTOP_PENDING\s/.test(item.state)){
+					item.stateCss="stoppending";
+				} else if(/\sSTART_PENDING\s/.test(item.state)){
+					item.stateCss="startpending";
 				}
 					
-				var IisServiceNames = ["WMSVC", "WAS", "W3SVC", "MsDepSvc", "WinRm", "msvsmon120"];
+				
 
 				if (IisServiceNames.contains(item.serviceName.trim(), String.prototype.contains)) {
 					item.css = "iis";
 				}
 				return item;
+			});
+			$scope.missing=Enumerable.From(IisServiceNames).Where(function(i){
+				return shaped.Any(function(s){
+					return s.serviceName.contains(i);
+				})==false;	
 			}).ToArray();
+			$scope.grouped = shaped.ToArray();
 			//console.log('shaped:' + shaped);
-			$scope.grouped = shaped;
 		};
 		var args = [];
 		if ($scope.host) {
 			args.push('\\\\' + $scope.host);
 		}
-		args.push('query');
+		args.push('queryex');
+		//even non-active services
 		args.push('state=');
 		args.push('all');
 		//args.push('');

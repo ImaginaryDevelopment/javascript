@@ -9,6 +9,9 @@
       <input type="text" data-ng-init="server='localhost'" data-ng-model="server" placeholder="localhost"/>
       <button data-ng-click="sc()">Refresh</button>
       <p>{{cmd}}</p>
+      <ul>
+        <li data-ng-repeat="m in missing">{{m}}</li>
+      </ul>
       	<table>
       		<thead>
       			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>pid</th><th>Unmapped</th></tr>
