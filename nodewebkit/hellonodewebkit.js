@@ -88,9 +88,26 @@ var groupLinesBy = function(strings, delimiter) {
 var HellonodewebkitCtrl = function($scope) {
 
 	window.$scope = $scope;
-
-
-
+	$scope.grouped=[];
+	var datasource= {type:"text", data:$scope.grouped,
+		schema: {
+			model: {
+				fields:{
+					serviceName: {type:"string"},
+					pid: {type:"string"}
+				}
+			}
+		}
+		}
+		var kendoGrid=$('#grid').kendoGrid({dataSource:datasource, filterable:true});
+		
+	$scope.$watch('grouped',function(){
+			if($scope.useKendo===true){
+				// http://stackoverflow.com/a/20781876/57883
+				kendoGrid.data("kendoGrid").dataSource.data($scope.grouped);
+				kendoGrid.data("kendoGrid").refresh();	
+			}
+	});
 	$scope.sc = function() {
 		$scope.stdout = '';
 		$scope.stderr = '';

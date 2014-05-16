@@ -1,18 +1,20 @@
 <html>
 <head> 
  	<title>Developer Configuration Manager</title>
+   <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.1.318/styles/kendo.common.min.css">
+  <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.1.318/styles/kendo.default.min.css">
  	<link rel="stylesheet" href="style.css"/>
 </head>
      <body data-ng-app data-ng-controller="HellonodewebkitCtrl">
-      
-
+      <label><input type="checkbox" data-ng-model="useKendo"/> Use Kendo</label>
+    <div id="grid" data-ng-show="useKendo"></div>
       <input type="text" data-ng-init="server='localhost'" data-ng-model="server" placeholder="localhost"/>
       <button data-ng-click="sc()">Refresh</button>
       <p>{{cmd}}</p>
       <ul>
         <li data-ng-repeat="m in missing">{{m}}</li>
       </ul>
-      	<table>
+      	<table data-ng-hide="useKendo">
       		<thead>
       			<tr><th>Service Name</th><th>Display Name</th><th>Type</th><th>State</th><th>pid</th><th>Unmapped</th></tr>
       		</thead>
@@ -38,7 +40,12 @@
         <!--<p>{{stdout}}</p> -->
         <p>{{stderr}}</p> 
         <script src="linq.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
         <script src="angular.min.js"></script>
+        
+        <script src="http://cdn.kendostatic.com/2014.1.318/js/kendo.web.min.js"></script>
+        <!-- <script src="kendobootstrap.js"></script> -->
         <script src="hellonodewebkit.js"></script>
+        
 </body>
 </html>
