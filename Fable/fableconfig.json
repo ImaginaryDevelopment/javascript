@@ -1,17 +1,9 @@
 {
-  "module": "commonjs",
+  "module": "amd",
   "sourceMaps": true,
-  "projFile": "./GettingStartedWithFableAndWebpack.fsx",
-  "outDir": "temp",
+  "projFile": "./gsfblwebpack.fsx",
+  "outDir": "out",
   "scripts": {
-    "prebuild": "npm install",
-    "postbuild": "webpack"
-  },
-  "targets": {
-    "watch": {
-      "scripts": {
-        "postbuild": "webpack --watch"
-      }
-    }
+    "prebuild": "npm install"
   }
 }
