@@ -2,3 +2,6 @@ karma/js/
 karma/node_modules/
 nodewebkit/angular.min.js
 nodewebkit/linq.js
+/Fable/node_modules/.bin
+/Fable/temp
+/Fable/node_modules

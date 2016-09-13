@@ -1,0 +1,23 @@
+{
+  "name": "fable-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "GettingStartedWithFableAndWebpack.js",
+  "dependencies": {
+    "core-js": "^2.4.1",
+    "fable-compiler": "^0.6.4",
+    "fable-core": "^0.6.1"
+  },
+  "devDependencies": {
+    "fable-compiler": "^0.6.4",
+    "source-map-loader": "^0.1.5",
+    "webpack": "^1.13.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "fable",
+    "watch": "fable -w --target watch"
+  },
+  "author": "Brandon D'Imperio",
+  "license": "ISC"
+}
